@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+	http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+	<servlet>
+		<servlet-name>HelloServlet</servlet-name>
+		<servlet-class>com.practice.HelloServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>HelloServlet</servlet-name>
+		<url-pattern>/servlet1</url-pattern>
+	</servlet-mapping>
+
+
+
+	<filter>
+		<filter-name>f4</filter-name>
+		<filter-class>com.practice.FourthFilter</filter-class>
+		<init-param>
+			<param-name>fourthFilter</param-name>
+			<param-value>fourth</param-value>
+		</init-param>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>f4</filter-name>
+		<url-pattern>/servlet1</url-pattern>
+	</filter-mapping>
+
+	<filter>
+		<filter-name>f3</filter-name>
+		<filter-class>com.practice.ThirdFilter</filter-class>
+		<init-param>
+			<param-name>thirdFilter</param-name>
+			<param-value>nojk</param-value>
+		</init-param>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>f3</filter-name>
+		<url-pattern>/servlet1</url-pattern>
+		
+	</filter-mapping>
+
+	<filter>
+		<filter-name>f1</filter-name>
+		<filter-class>com.practice.FirstFilter</filter-class>
+		<init-param>
+			<param-name>construction</param-name>
+			<param-value>no</param-value>
+		</init-param>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>f1</filter-name>
+		<!-- <url-pattern>/servlet1</url-pattern> -->
+		<servlet-name>HelloServlet</servlet-name>
+	</filter-mapping>
+
+
+
+	<filter>
+		<filter-name>f2</filter-name>
+		<filter-class>com.practice.SecondFilter</filter-class>
+		<init-param>
+			<param-name>constructiontwo</param-name>
+			<param-value>second</param-value>
+		</init-param>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>f2</filter-name>
+		<url-pattern>/servlet1</url-pattern>
+	</filter-mapping>
+</web-app>
