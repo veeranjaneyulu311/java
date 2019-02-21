@@ -1,0 +1,90 @@
+
+
+def copytree(src, dst, symlinks=False, ignore=None):
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
+            shutil.copytree(s, d, symlinks, ignore)
+        else:
+            shutil.copy2(s, d)
+			
+			
+import os
+import shutil
+
+def recursive_copy(src, dst):
+    
+    os.chdir(src)
+    for item in os.listdir():
+
+        if os.path.isfile(item):
+            shutil.copy(item, dst)
+            
+        elif os.path.isdir(item):
+            new_dst = os.path.join(dst, item)
+            os.mkdir(new_dst)
+            recursive_copy(os.path.abspath(item), new_dst)
+			
+			
+			
+/home/drucaredev/ui/app
+/home/drucaredev/ui/new
+/opt/app/dist-test/app
+
+
+deploy:
+drwxrwxrwx 3 root root 4096 Feb  6 15:12 app
+drwxrwxrwx 3 root root 8192 Feb  6 15:12 new
+drwxrwxrwx 2 root root    6 Feb  6 15:06 root
+
+drwxrwxrwx 3 root root 4096 Feb  6 15:21 app
+drwxrwxrwx 3 root root 8192 Feb  6 15:20 new
+
+drwxrwxrwx 3 root root 4096 Feb  6 15:12 app
+drwxrwxrwx 3 root root 8192 Feb  6 15:12 new
+
+drwxrwxrwx 3 root root 4096 Feb  6 15:21 app
+drwxrwxrwx 3 root root 8192 Feb  6 15:20 new
+
+
+/opt/app/uibackup/2019-Feb-06
+
+def rename_old_jar():
+        #get all existing files list
+        current_jars=os.listdir(backup_directory)
+        #get current given jars
+        same_jars=list(filter(lambda file:file.startswith(service_jar_name),current_jars))
+        #get recent jar
+        recent_jar=list(filter(lambda file:file==service_jar_name,same_jars))
+        if len(recent_jar)!=0:
+                new='{}/{}.{}'.format(backup_directory,recent_jar[0],len(same_jars)-1)
+                sp.call(['mv','{}/{}'.format(backup_directory,service_jar_name),new])
+                verify()
+        else:
+                verify()
+
+
+service_name=sys.argv[1]
+backup_directory='/opt/app/uibackup/2019-Feb-06'
+l=os.listdir('/opt/app/uibackup/2019-Feb-06')
+s=list(filter(lambda file:file.startswith(service_name),l))
+recent_jar=list(filter(lambda file:file==service_name,s))
+if len(recent_jar)!=0:
+                new='{}/{}-{}'.format(backup_directory,recent_jar[0],len(s)-1)
+                os.rename('{}/{}'.format(backup_directory,service_name),new)
+
+
+				
+				
+				
+				
+ SELECT (a.drug_brand_nm::text || '@@'::text) || b.drug_nm::text AS comb_drugnm,
+    (a.drug_brand_id || '-'::text) || a.drug_id AS comb_drugid,
+    a.drug_brand_nm AS brand_name
+   FROM drug_brand_ref a
+     JOIN drug_ref b ON a.drug_id = b.drug_id
+  WHERE a.isactive = true;
+
+8669
+https://www.digitbin.com/neterr-cert-invalid-chrome-fix/

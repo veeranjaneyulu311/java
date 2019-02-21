@@ -1,0 +1,1452 @@
+﻿index=Rdb
+type/mapping=table
+
+INDEX/TYPE or MAPPING/DOCUMENT/FIELD
+
+
+
+
+1.Create Index
+=============
+If you are using any of the Beats shippers (e.g. Filebeat or Metricbeat), or Logstash — the indices are automatically created.
+
+request:
+--------
+
+PUT http://localhost:9200/schools
+{
+request body contains index specific settings otherwise default settings
+}
+
+response:
+---------
+{
+  "acknowledged" : true,
+  "shards_acknowledged" : true,
+  "index" : "scholls"
+}
+
+2.Create Mapping and Add data:
+==============================
+elastic search will automatically create mapping based on reqauest body.
+add more than one JSON object to index--->use _bulk functionality(_bulk)
+
+request:
+--------
+POST http://localhost:9200/schools/_bulk
+{
+RequestBody
+}
+
+
+end point:"/_bulk"     expexts:newline delimited JSON (NDJSON) [ Content-Type=application/x-ndjson]
+
+action_and_meta_data\n
+optional_source\n
+action_and_meta_data\n
+optional_source\n
+....
+action_and_meta_data\n
+optional_source\n
+
+actions:
+index=
+create=
+delete=
+update=
+
+
+
+references:
+----------
+https://tests4geeks.com/elasticsearch-tutorial/
+
+Communicate to elastic search:[https://www.elastic.co/guide/en/elasticsearch/guide/master/_talking_to_elasticsearch.html]
+==============================
+1.elastic search is providing offical clients for several languages like Java,Groovy, JavaScript, .NET, PHP, Perl, Python, and Ruby
+  ex:javaclients-----1.node client,2.transport client
+  note:  javaclients communicate to cluster over port 9300
+	     The nodes in the cluster also communicate with each other over port 9300
+
+2.using community-provided clients 
+
+3.using RESTful API over port 9200
+
+
+Learn how to run SQL like queries on elastic search:
+=====================================================
+References:[https://logz.io/blog/elasticsearch-sql-support/]
+->The native querying language for searching in Elasticsearch is Query DSL
+->But in Elasticsearch 6.3, SQL support is built into the default Elasticsearch package i.e X-Pack
+->terminology:
+  SQL columns<-->Elasticsearch fields
+  SQL Rows   <-->Elasticsearch Documents
+  
+  
+  ex:
+  GET _xpack/sql
+  {
+  "query": "SELECT * FROM books index-name" 
+  }
+  note:=>There is a default limitation of 100 columns for this query, so executing this statement 
+	   against a large index (a Metricbeat index for example) would fail.You can change this by
+	   configuring the index.max_docvalue_fields_search index setting. 
+	   =>to get response in different forms use query string i.e GET _xpack/sql?format=txt   ,  GET _xpack/sql?format=json
+	   
+	   
+->we can execute sql query in kibana console tool or SQL CLI tool provided by elastic search.
+ SQL CLI----------->sudo ./bin/elasticsearch-sql-cli
+ QUERY------------->curl -XGET "<PROTOCOL>//<HOST>:<PORT>/<PATH>?<QUERY>" -H 'Content-Type: application/json' -d '<BODY>'
+ EX:
+ curl -XGET "http://localhost:9200/_xpack/sql" -H 'Content-Type: application/json' -d'
+> {
+>   "query": "SELECT count(message) FROM logstash*"
+> }'
+ 
+
+ 
+->Combining Query DSL with SQL for filtering
+EX:
+GET _xpack/sql?format=txt
+{
+  "query": "SELECT avg(system.process.memory.size), system.process.name FROM metricbeat* system.process.name GROUP BY system.process.name",
+  "filter": {
+        "term": {
+                "system.process.name" : "java"
+        }
+    },
+  "fetch_size":5
+}
+
+
+->we have JDBC driver for Elasticsearch, so you can easily hook up Elasticsearch with your Java applications.
+
+->We can convert sql query to Query DSL using Translate API.
+
+
+
+references:
+===========
+https://logz.io/blog/elasticsearch-tutorial/
+https://logz.io/blog/beats-tutorial/
+
+=========================================================================================================================================================================================
+=========================================================================================================================================================================================
+                  Java+Elasticsearch
+=========================================================================================================================================================================================
+Every feature of Elasticsearch is exposed as a REST API:
+
+Index API: Used to document the index.
+
+Get API: Used to retrieve the document.
+
+Search API: Used to submit your query and get a result.
+
+Put Mapping API: Used to override default choices and define the mapping.
+
+
+
+
+https://qbox.io/blog/build-autocomplete-feature-using-elasticsearch-suggest{suggestor}
+
+
+=====================================================================================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+																		Elasticsearch
+=================================================================================================================================================================
+=>in-memory data structure called an FST
+=>Essentially, FST is just a graph
+=>it results possible completions for inserted letter or word
+=>First, create an index, and setup the completion suggester for the name_suggest field:
+EX:
+curl -X PUT localhost:9200/hotels -d '
+{
+  "mappings": {
+    "diagnos" : {//type
+      "properties" : {//fields
+        "name" : { "type" : "string" },//document field 1 *!
+        "city" : { "type" : "string" },//document field 2 *!
+        "diagnosis_suggest" : {//suggester field
+          "type" :     "completion"  //for taking it as suggester filed 
+        }
+      } 
+    }
+  }
+}'
+
+=>Then, index some diagnos
+case1:single suggestion
+curl -X PUT localhost:9200/hotels/hotel/1 -d '
+{
+  "name" :         "Mercure Hotel Munich",
+  "city" :         "Munich",
+  "diagnosis_suggest" : "Mercure Hotel Munich"   //single input suggestion
+}'
+case2:multiple suggestions
+{
+  "name" :         "Mercure Hotel Munich",
+  "city" :         "Munich",
+  "diagnosis_suggest" : { 
+    "input" :      [ 
+      "Mercure Hotel Munich", 
+      "Mercure Munich" 
+    ] 
+  }
+}'
+case3:for single output
+curl -X PUT localhost:9200/hotels/hotel/3 -d '
+{
+  "name" :         "Courtyard by Marriot Munich City",
+  "city" :         "Munich",
+  "name_suggest" : { 
+    "input" :      [ 
+      "Courtyard by Marriot Munich City", 
+      "Marriot Munich City" 
+    ],
+    "output":      "Hotel Marriot"
+  }
+}'
+case4:the order of suggestions returned are decided by using "weight"
+{
+  "name" :         "Mercure Hotel Munich",
+  "city" :         "Munich",
+  "name_suggest" : { 
+    "input" :      [ 
+      "Mercure Hotel Munich", 
+      "Mercure Munich" 
+    ],
+    "output":      "Hotel Mercure",
+    "weight":      5
+  }
+}'
+
+Note: A weight must be an integer (not a float, as you are used from normal scoring) between 0 and 2^31.
+Note: If you don't specify a weight then Elasticsearch will use the term frequency of the search phrase within its segment, usually 1.
+This is pretty much meaningless as far as suggestions go. It is better to control order using weight
+
+case5:we can also use payloads for suggestions
+Note:Payloads must be enabled in the mapping before we can use them
+i.e :"name_suggest" : {
+          "type" :     "completion",
+          "payloads" : true
+        }
+		
+	
+
+=>Now ask for suggestions
+curl -X POST localhost:9200/hotels/_suggest -d '
+{
+  "hotels" : {
+    "text" : "m",
+    "completion" : {
+      "field" : "diagnosis_suggest"
+    }
+  }
+}'
+
+POST music/_search?pretty
+{
+    "suggest": {
+        "diagnos-suggest" : {
+            "prefix" : "nir", 
+            "completion" : { 
+                "field" : "diagnosis_suggest" 
+            }
+        }
+    }
+}
+
+Note:FST query is not the same as a full text query. We can't find words anywhere within a phrase
+
+
+Note 1:mappings
+curl -X PUT localhost:9200/hotels -d '
+{
+  "mappings": {
+    "hotel" : {
+      "properties" : {
+        "name" : { "type" : "string" },
+        "city" : { "type" : "string" },
+        "name_suggest" : {
+          "type" :            "completion",
+          "index_analyzer" :  "standard",
+          "search_analyzer" : "standard",
+          "preserve_position_increments": false,
+          "preserve_separators": false
+        }
+      } 
+    }
+  }
+}'
+
+Note 2:fuzzy
+In order to find suggestions even if the user misspells some words, the completion suggester will support fuzzy queries as of elasticsearch 0.90.4. 
+All you have to do is to add the fuzzy option to your suggest request:
+
+curl -X POST 'localhost:9200/hotels/_suggest?pretty' -d '
+{
+  "hotels" : {
+    "text" : "coutr",
+    "completion" : {
+      "field" : "name_suggest",
+      "fuzzy" : {
+        "edit_distance" : 2
+      }
+    }
+  }
+}'
+
+
+
+
+execution:
+PUT diagnosis/diagnose/1
+{
+  "mappings": {
+    "diagnose" : {
+      "properties" : {
+          "diagnosis_suggest" : {
+          "type" :"completion"
+          }
+      } 
+    }
+  }
+}
+====================================================================================================================================================================FTS
+https://www.baeldung.com/elasticsearch-full-text-search-rest-api
+https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html
+https://www.elastic.co/guide/en/elasticsearch/reference/current/full-text-queries.html
+https://qbox.io/blog/understanding-bulk-indexing-in-elasticsearch
+
+1.curl -XGET 'http://localhost:9200/'
+2.curl -XPUT 'localhost:9200/text/article/1?pretty'  -H 'Content-Type: application/json' -d '
+{
+  "title": "He went",
+  "random_text": 
+    "He went such dare good fact. The small own seven saved man age."
+}
+create index and store document
+PUT /text/article/1
+{
+  "title": "He went",
+  "random_text": 
+    "He went such dare good fact. The small own seven saved man age."
+}
+updates the above indexed documnet
+PUT /text/article/1
+{
+  "title": "He is not the",
+  "random_text": 
+    "such dare good fact. The small own seven saved man age."
+}
+
+3.GET /index-name ------returns mappings and settings of given index
+
+4.GET /index-name/_search-------returns hits i.e documents
+
+5.GET /index-name/_count-------returns count of documents
+
+6.FTS
+curl -XGET 'localhost:9200/text/article/_search?pretty' -H 'Content-Type: application/json' -d '
+{
+  "query": {
+    "match": {
+      "random_text": "him departure"
+    }
+  }
+}'
+
+(or)
+
+note:
+0 for strings of one or two characters
+1 for strings of three, four, or five characters
+2 for strings of more than five characters
+
+
+bulk indexing:
+{ action_to_be_performed: { metadata_related_to_action_performed }}\newline
+{ request_body_usually_data_to_be_indexed        }\newline
+
+ex:[without id]
+POST /_bulk
+{ "index" : { "_index" : "countries", "_type" : "country"} }
+{ "country_name": "South Africa","continent" : "Africa","country_abbreviation": "ZA" }
+{ "index" : { "_index" : "countries", "_type" : "country"}}
+{ "country_name": "Germany","continent" : "Europe","country_abbreviation": "DE" }
+{ "index" : { "_index" : "countries", "_type" : "country"}}
+{ "country_name": "United States","continent" : "America", "country_abbreviation": "USA" }
+
+ex:[with id]
+{ "index" : { "_index" : "testindex", "_type" : "somerandomtype", "_id" : "1" } }
+{ "somefield" : "value1" }
+{ "index" : { "_index" : "testindex", "_type" : "somerandomtype", "_id" : "2" } }
+{ "somefield" : "hello hello hello" }
+{ "index" : { "_index" : "testindex", "_type" : "somerandomtype", "_id" : "3" } }
+{ "somefield" : "Whoo WHoo hooo hooo hoooooooo hoooo" }
+{ "index" : { "_index" : "testindex", "_type" : "somerandomtype", "_id" : "4" } }
+{ "somefield" : "Really need the water in Cape Town" }
+================================================================================================================================================================
+step1:create index
+PUT /my_index
+{
+    "settings": {
+        "analysis": {
+            "filter": {
+                "my_filter": {
+                    "type":     "ngram",
+                    "min_gram": 3,
+                    "max_gram": 3
+                }
+            },
+            "analyzer": {
+                "my_analyzer_name": {
+                    "type":      "custom",
+                    "tokenizer": "standard",
+                    "filter":   [
+                        "lowercase",
+                        "my_filter"
+                    ]
+                }
+            }
+        }
+    },
+    "mappings": {
+        "my_type": {
+            "properties": {
+                "my_field_name": {
+                    "type":     "string",//if not work choose "text"
+                    "analyzer": "my_grams" 
+                }
+            }
+        }
+    }
+}
+
+(or)
+GET testing/fulltext/_search
+{
+  "query":{
+    "wildcard":{
+      "random_text":"*t*"
+    }
+  } 
+}
+
+GET /my_index/my_type/_search
+{
+    "query": {
+        "match": {
+            "target_field": {      
+                "query":    "BROWN DOG!",
+                "operator": "and"
+            }
+        }
+    }
+}
+GET /my_index/my_type/_search
+{
+    "query": {
+        "match": {
+            "title": "BROWN DOG!"
+        }
+    }
+}
+step2:insert data
+POST /_bulk
+{ "index" : { "_index" : "testing", "_type" : "fulltext"} }
+{ "title": "He went", "random_text": "He went such dare good fact. The small own seven saved man age."}
+{ "index" : { "_index" : "testing", "_type" : "fulltext"} }
+{ "title": "He oppose", "random_text":"He oppose at thrown desire of no.Announcing impression unaffected day his are unreserved indulgence."}
+{ "index" : { "_index" : "testing", "_type" : "fulltext"} } 
+{ "title": "Repulsive questions","random_text": "Repulsive questions contented him few extensive supported."}
+{ "index" : { "_index" : "testing", "_type" : "fulltext"} } 
+{  "title": "Old education","random_text": "Old education him departure any arranging one prevailed."}
+testing analyzers:
+GET diagnosis/_analyze							//custom
+{
+  "analyzer": "diagnosis_trigram",
+  "text":"shivering"
+}
+
+POST _analyze                               //built-in
+{
+  "analyzer": "whitespace",
+  "text":     "The quick brown fox."
+}
+
+
+
+query for suggest type :
+/*String	query="{\"suggest\":{\"my-suggestions\":{\"prefix\":\""+find+"\",\"completion\":{\"field\":\"diagnosis_suggest\",\"fuzzy\":{\"fuzziness\":1}}}}}";
+					request.setJsonEntity(query);*/	
+------------------------------------------------
+using the default_pipeline setting. For example:
+PUT my_index
+{
+  "settings": {
+    "default_pipeline": "my_timestamp_pipeline"
+  }
+}
+
+input:
+PUT my_index/_doc/1
+{
+  "foo": "bar"
+}
+
+output:
+{
+  "_index" : "my_index",
+  "_type" : "_doc",
+  "_id" : "1",
+  "_version" : 1,
+  "found" : true,
+  "_source" : {
+    "foo" : "bar",
+    "ingest_timestamp" : "2018-12-12T12:04:09.921Z"
+  }
+}
+---------------------------------------------------
+
+
+
+mapping:
+-------
+{
+  "mappings": {
+    "hotel" : {
+      "properties" : {
+        "name" : { "type" : "string" },
+        "city" : { "type" : "string" },
+        "name_suggest" : {
+          "type" :     "completion"
+        }
+      } 
+    }
+  }
+}
+
+request:[index=hotels]
+-------
+{
+  "hotels" : {
+    "text" : "m",
+    "completion" : {
+      "field" : "name_suggest"
+    }
+  }
+}
+
+
+response:
+--------
+"hotels" : [ 
+  {
+    "text" : "m",
+    "offset" : 0,
+    "length" : 1,
+    "options" : [ 
+      {
+        "text" : "Mercure Hotel Munich",
+        "score" : 1.0
+      } 
+    ]
+  }
+]
+ 
+https://www.elastic.co/blog/you-complete-me
+https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters-completion.html
+https://hackernoon.com/elasticsearch-using-completion-suggester-to-build-autocomplete-e9c120cf6d87
+https://tw.saowen.com/a/c29b1724a7b0c8003de3b2cfe213d6ffc3c3e8d3338ba1e4b8ca3953fa82ee4b
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Kibana:
+=======
+https://logz.io/blog/10-resources-you-should-bookmark-if-you-run-your-own-elk-stack/
+https://logz.io/blog/kibana-tutorial/
+https://logz.io/blog/kibana-tutorial-2/
+
+Kibana is the visualization layer of the ELK Stack
+===>Create index pattern, and you are ready to analyze the data
+	1.Management-->index patterns-->create index pattern
+	2.Go to the Discover tab in Kibana to take a look at the data
+	3.Free-Text Search
+	
+Kibana visualizations are based on aggregations performed by Elasticsearch
+===>There are two types of aggregations — Metric aggregations and Bucket aggregations. 
+===>Each visualization type presents buckets and their values in different ways.
+The main factor determining what your dashboard will look like is its purpose or goal. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+index=Rdb
+type/mapping=table
+
+INDEX/TYPE or MAPPING/DOCUMENT/FIELD
+
+
+
+
+1.Create Index
+=============
+If you are using any of the Beats shippers (e.g. Filebeat or Metricbeat), or Logstash — the indices are automatically created.
+
+request:
+--------
+
+PUT http://localhost:9200/schools
+{
+request body contains index specific settings otherwise default settings
+}
+
+response:
+---------
+{
+  "acknowledged" : true,
+  "shards_acknowledged" : true,
+  "index" : "scholls"
+}
+
+2.Create Mapping and Add data:
+==============================
+elastic search will automatically create mapping based on reqauest body.
+add more than one JSON object to index--->use _bulk functionality(_bulk)
+
+request:
+--------
+POST http://localhost:9200/schools/_bulk
+{
+RequestBody
+}
+
+
+end point:"/_bulk"     expexts:newline delimited JSON (NDJSON) [ Content-Type=application/x-ndjson]
+
+action_and_meta_data\n
+optional_source\n
+action_and_meta_data\n
+optional_source\n
+....
+action_and_meta_data\n
+optional_source\n
+
+actions:
+index=
+create=
+delete=
+update=
+
+
+
+references:
+----------
+https://tests4geeks.com/elasticsearch-tutorial/
+
+Communicate to elastic search:[https://www.elastic.co/guide/en/elasticsearch/guide/master/_talking_to_elasticsearch.html]
+==============================
+1.elastic search is providing offical clients for several languages like Java,Groovy, JavaScript, .NET, PHP, Perl, Python, and Ruby
+  ex:javaclients-----1.node client,2.transport client
+  note:  javaclients communicate to cluster over port 9300
+	     The nodes in the cluster also communicate with each other over port 9300
+
+2.using community-provided clients 
+
+3.using RESTful API over port 9200
+
+
+Learn how to run SQL like queries on elastic search:
+=====================================================
+References:[https://logz.io/blog/elasticsearch-sql-support/]
+->The native querying language for searching in Elasticsearch is Query DSL
+->But in Elasticsearch 6.3, SQL support is built into the default Elasticsearch package i.e X-Pack
+->terminology:
+  SQL columns<-->Elasticsearch fields
+  SQL Rows   <-->Elasticsearch Documents
+  
+  
+  ex:
+  GET _xpack/sql
+  {
+  "query": "SELECT * FROM books index-name" 
+  }
+  note:=>There is a default limitation of 100 columns for this query, so executing this statement 
+	   against a large index (a Metricbeat index for example) would fail.You can change this by
+	   configuring the index.max_docvalue_fields_search index setting. 
+	   =>to get response in different forms use query string i.e GET _xpack/sql?format=txt   ,  GET _xpack/sql?format=json
+	   
+	   
+->we can execute sql query in kibana console tool or SQL CLI tool provided by elastic search.
+ SQL CLI----------->sudo ./bin/elasticsearch-sql-cli
+ QUERY------------->curl -XGET "<PROTOCOL>//<HOST>:<PORT>/<PATH>?<QUERY>" -H 'Content-Type: application/json' -d '<BODY>'
+ EX:
+ curl -XGET "http://localhost:9200/_xpack/sql" -H 'Content-Type: application/json' -d'
+> {
+>   "query": "SELECT count(message) FROM logstash*"
+> }'
+ 
+
+ 
+->Combining Query DSL with SQL for filtering
+EX:
+GET _xpack/sql?format=txt
+{
+  "query": "SELECT avg(system.process.memory.size), system.process.name FROM metricbeat* system.process.name GROUP BY system.process.name",
+  "filter": {
+        "term": {
+                "system.process.name" : "java"
+        }
+    },
+  "fetch_size":5
+}
+
+
+->we have JDBC driver for Elasticsearch, so you can easily hook up Elasticsearch with your Java applications.
+
+->We can convert sql query to Query DSL using Translate API.
+
+
+
+references:
+===========
+https://logz.io/blog/elasticsearch-tutorial/
+https://logz.io/blog/beats-tutorial/
+
+=========================================================================================================================================================================================
+=========================================================================================================================================================================================
+                  Java+Elasticsearch
+=========================================================================================================================================================================================
+Every feature of Elasticsearch is exposed as a REST API:
+
+Index API: Used to document the index.
+
+Get API: Used to retrieve the document.
+
+Search API: Used to submit your query and get a result.
+
+Put Mapping API: Used to override default choices and define the mapping.
+
+
+
+
+https://qbox.io/blog/build-autocomplete-feature-using-elasticsearch-suggest{suggestor}
+
+
+=====================================================================================================================================================================
+
+				Elasticsearch
+=================================================================================================================================================================
+=>in-memory data structure called an FST
+=>Essentially, FST is just a graph
+=>it results possible completions for inserted letter or word
+=>First, create an index, and setup the completion suggester for the name_suggest field:
+EX:
+curl -X PUT localhost:9200/hotels -d '
+{
+  "mappings": {
+    "diagnos" : {//type
+      "properties" : {//fields
+        "name" : { "type" : "string" },//document field 1 *!
+        "city" : { "type" : "string" },//document field 2 *!
+        "diagnosis_suggest" : {//suggester field
+          "type" :     "completion"  //for taking it as suggester filed 
+        }
+      } 
+    }
+  }
+}'
+
+=>Then, index some diagnos
+case1:single suggestion
+curl -X PUT localhost:9200/hotels/hotel/1 -d '
+{
+  "name" :         "Mercure Hotel Munich",
+  "city" :         "Munich",
+  "diagnosis_suggest" : "Mercure Hotel Munich"   //single input suggestion
+}'
+case2:multiple suggestions
+{
+  "name" :         "Mercure Hotel Munich",
+  "city" :         "Munich",
+  "diagnosis_suggest" : { 
+    "input" :      [ 
+      "Mercure Hotel Munich", 
+      "Mercure Munich" 
+    ] 
+  }
+}'
+case3:for single output
+curl -X PUT localhost:9200/hotels/hotel/3 -d '
+{
+  "name" :         "Courtyard by Marriot Munich City",
+  "city" :         "Munich",
+  "name_suggest" : { 
+    "input" :      [ 
+      "Courtyard by Marriot Munich City", 
+      "Marriot Munich City" 
+    ],
+    "output":      "Hotel Marriot"
+  }
+}'
+case4:the order of suggestions returned are decided by using "weight"
+{
+  "name" :         "Mercure Hotel Munich",
+  "city" :         "Munich",
+  "name_suggest" : { 
+    "input" :      [ 
+      "Mercure Hotel Munich", 
+      "Mercure Munich" 
+    ],
+    "output":      "Hotel Mercure",
+    "weight":      5
+  }
+}'
+
+Note: A weight must be an integer (not a float, as you are used from normal scoring) between 0 and 2^31.
+Note: If you don't specify a weight then Elasticsearch will use the term frequency of the search phrase within its segment, usually 1.
+This is pretty much meaningless as far as suggestions go. It is better to control order using weight
+
+case5:we can also use payloads for suggestions
+Note:Payloads must be enabled in the mapping before we can use them
+i.e :"name_suggest" : {
+          "type" :     "completion",
+          "payloads" : true
+        }
+		
+	
+
+=>Now ask for suggestions
+curl -X POST localhost:9200/hotels/_suggest -d '
+{
+  "hotels" : {
+    "text" : "m",
+    "completion" : {
+      "field" : "diagnosis_suggest"
+    }
+  }
+}'
+
+POST music/_search?pretty
+{
+    "suggest": {
+        "diagnos-suggest" : {
+            "prefix" : "nir", 
+            "completion" : { 
+                "field" : "diagnosis_suggest" 
+            }
+        }
+    }
+}
+
+Note:FST query is not the same as a full text query. We can't find words anywhere within a phrase
+
+
+Note 1:mappings
+curl -X PUT localhost:9200/hotels -d '
+{
+  "mappings": {
+    "hotel" : {
+      "properties" : {
+        "name" : { "type" : "string" },
+        "city" : { "type" : "string" },
+        "name_suggest" : {
+          "type" :            "completion",
+          "index_analyzer" :  "standard",
+          "search_analyzer" : "standard",
+          "preserve_position_increments": false,
+          "preserve_separators": false
+        }
+      } 
+    }
+  }
+}'
+
+Note 2:fuzzy
+In order to find suggestions even if the user misspells some words, the completion suggester will support fuzzy queries as of elasticsearch 0.90.4. 
+All you have to do is to add the fuzzy option to your suggest request:
+
+curl -X POST 'localhost:9200/hotels/_suggest?pretty' -d '
+{
+  "hotels" : {
+    "text" : "coutr",
+    "completion" : {
+      "field" : "name_suggest",
+      "fuzzy" : {
+        "edit_distance" : 2
+      }
+    }
+  }
+}'
+
+
+
+
+execution:
+PUT diagnosis/diagnose/1
+{
+  "mappings": {
+    "diagnose" : {
+      "properties" : {
+          "diagnosis_suggest" : {
+          "type" :"completion"
+          }
+      } 
+    }
+  }
+}
+====================================================================================================================================================================FTS
+https://www.baeldung.com/elasticsearch-full-text-search-rest-api
+https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html
+https://www.elastic.co/guide/en/elasticsearch/reference/current/full-text-queries.html
+https://qbox.io/blog/understanding-bulk-indexing-in-elasticsearch
+
+1.curl -XGET 'http://localhost:9200/'
+2.curl -XPUT 'localhost:9200/text/article/1?pretty'  -H 'Content-Type: application/json' -d '
+{
+  "title": "He went",
+  "random_text": 
+    "He went such dare good fact. The small own seven saved man age."
+}
+create index and store document
+PUT /text/article/1
+{
+  "title": "He went",
+  "random_text": 
+    "He went such dare good fact. The small own seven saved man age."
+}
+updates the above indexed documnet
+PUT /text/article/1
+{
+  "title": "He is not the",
+  "random_text": 
+    "such dare good fact. The small own seven saved man age."
+}
+
+3.GET /index-name ------returns mappings and settings of given index
+
+4.GET /index-name/_search-------returns hits i.e documents
+
+5.GET /index-name/_count-------returns count of documents
+
+6.FTS
+curl -XGET 'localhost:9200/text/article/_search?pretty' -H 'Content-Type: application/json' -d '
+{
+  "query": {
+    "match": {
+      "random_text": "him departure"
+    }
+  }
+}'
+
+(or)
+
+note:
+0 for strings of one or two characters
+1 for strings of three, four, or five characters
+2 for strings of more than five characters
+
+
+bulk indexing:
+{ action_to_be_performed: { metadata_related_to_action_performed }}\newline
+{ request_body_usually_data_to_be_indexed        }\newline
+
+ex:[without id]
+POST /_bulk
+{ "index" : { "_index" : "countries", "_type" : "country"} }
+{ "country_name": "South Africa","continent" : "Africa","country_abbreviation": "ZA" }
+{ "index" : { "_index" : "countries", "_type" : "country"}}
+{ "country_name": "Germany","continent" : "Europe","country_abbreviation": "DE" }
+{ "index" : { "_index" : "countries", "_type" : "country"}}
+{ "country_name": "United States","continent" : "America", "country_abbreviation": "USA" }
+
+ex:[with id]
+{ "index" : { "_index" : "testindex", "_type" : "somerandomtype", "_id" : "1" } }
+{ "somefield" : "value1" }
+{ "index" : { "_index" : "testindex", "_type" : "somerandomtype", "_id" : "2" } }
+{ "somefield" : "hello hello hello" }
+{ "index" : { "_index" : "testindex", "_type" : "somerandomtype", "_id" : "3" } }
+{ "somefield" : "Whoo WHoo hooo hooo hoooooooo hoooo" }
+{ "index" : { "_index" : "testindex", "_type" : "somerandomtype", "_id" : "4" } }
+{ "somefield" : "Really need the water in Cape Town" }
+================================================================================================================================================================
+step1:create index
+PUT /my_index
+{
+    "settings": {
+        "analysis": {
+            "filter": {
+                "my_filter": {
+                    "type":     "ngram",
+                    "min_gram": 3,
+                    "max_gram": 3
+                }
+            },
+            "analyzer": {
+                "my_analyzer_name": {
+                    "type":      "custom",
+                    "tokenizer": "standard",
+                    "filter":   [
+                        "lowercase",
+                        "my_filter"
+                    ]
+                }
+            }
+        }
+    },
+    "mappings": {
+        "my_type": {
+            "properties": {
+                "my_field_name": {
+                    "type":     "string",//if not work choose "text"
+                    "analyzer": "my_grams" 
+                }
+            }
+        }
+    }
+}
+
+(or)
+GET testing/fulltext/_search
+{
+  "query":{
+    "wildcard":{
+      "random_text":"*t*"
+    }
+  } 
+}
+
+GET /my_index/my_type/_search
+{
+    "query": {
+        "match": {
+            "target_field": {      
+                "query":    "BROWN DOG!",
+                "operator": "and"
+            }
+        }
+    }
+}
+GET /my_index/my_type/_search
+{
+    "query": {
+        "match": {
+            "title": "BROWN DOG!"
+        }
+    }
+}
+step2:insert data
+POST /_bulk
+{ "index" : { "_index" : "testing", "_type" : "fulltext"} }
+{ "title": "He went", "random_text": "He went such dare good fact. The small own seven saved man age."}
+{ "index" : { "_index" : "testing", "_type" : "fulltext"} }
+{ "title": "He oppose", "random_text":"He oppose at thrown desire of no.Announcing impression unaffected day his are unreserved indulgence."}
+{ "index" : { "_index" : "testing", "_type" : "fulltext"} } 
+{ "title": "Repulsive questions","random_text": "Repulsive questions contented him few extensive supported."}
+{ "index" : { "_index" : "testing", "_type" : "fulltext"} } 
+{  "title": "Old education","random_text": "Old education him departure any arranging one prevailed."}
+testing analyzers:
+GET diagnosis/_analyze							//custom
+{
+  "analyzer": "diagnosis_trigram",
+  "text":"shivering"
+}
+
+POST _analyze                               //built-in
+{
+  "analyzer": "whitespace",
+  "text":     "The quick brown fox."
+}
+
+
+
+query for suggest type :
+/*String	query="{\"suggest\":{\"my-suggestions\":{\"prefix\":\""+find+"\",\"completion\":{\"field\":\"diagnosis_suggest\",\"fuzzy\":{\"fuzziness\":1}}}}}";
+					request.setJsonEntity(query);*/		
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+ANALYSER=[character filters + tokenizers + token filters]		
+character filter=[transform the stream by adding, removing, or changing characters]
+tokenizers=[stream of characters to stream of tokens] ex:whitespace tokenizer
+token filters=[receives the token stream and add, remove, or change tokens] ex:lowercase,stop,synonym token filters
+NOTE::
+======
+->
+An analyzer may have zero or more character filters, which are applied in order.	
+An analyzer must have exactly one tokenizer.	
+An analyzer may have zero or more token filters, which are applied in order.
+
+->
+a built-in analyzer or a custom analyzer defined per index.
+Each text field in a mapping can specify its own analyzer.
+At index time, if no analyzer has been specified, it looks for an analyzer in the index settings called default. Failing that, it defaults to using the standard analyzer.
+
+specifying index time analyser:
+PUT my_index
+{
+  "mappings": {
+    "_doc": {
+      "properties": {
+        "title": {
+          "type":     "text",
+          "analyzer": "standard"
+        }
+      }
+    }
+  }
+}
+
+
+
+search time:
+The analyzer to use to search a particular field is determined by looking for:
+
+An analyzer specified in the query itself.
+The search_analyzer mapping parameter.
+The analyzer mapping parameter.
+An analyzer in the index settings called default_search.
+An analyzer in the index settings called default.
+The standard analyzer.
+
+pattern analyser:
+================
+PUT my_index
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "my_email_analyzer": {
+          "type":      "pattern",
+          "pattern":   "@@", 
+          "lowercase": true
+        }
+      }
+    }
+  }
+}
+=======================================================================================================================================
+DrugsInformation:
+=================
+indexing:
+--------
+PUT /drugsinfo
+{
+    
+    "mappings": {
+        "drugs_type": {
+            "properties": {
+                "COMB_DRUGNM": {
+                    "type":     "text",
+                    "analyzer": "keyword" 
+                }
+            }
+        }
+    }
+}
+
+i.e============="{ \"mappings\": { \"drugs_type\": { \"properties\": { \"comb_drugnm\": { \"type\": \"text\", \"analyzer\": \"keyword\" } } } } } ";
+
+query:
+-----
+GET drugsinfo/drugs_type/_search
+{
+    "query": {
+        "regexp":{
+            "comb_drugnm": ""
+        }
+    }
+}
+
+i.e =========="{ \"query\": { \"regexp\":{ \"comb_drugnm\": \"\" } } } "
+
+drug
+===============================================================================================================================================
+
+
+https://tryolabs.com/blog/2015/02/25/elasticsearch-analyzers-or-how-i-learned-to-stop-worrying-and-love-custom-filters/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

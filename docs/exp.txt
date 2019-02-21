@@ -1,0 +1,469 @@
+================================================================< GIT COMMANDS >====================================================================
+merging:
+========
+git clone "<clone url>"
+git branch
+git checkout <source>
+git pull origin <source>
+git checkout <desi>
+git pull origin qa
+git merge dev
+git status
+git add -i
+git status
+git commit -m "..........."
+git push origin qa
+tag:[tagSyntax-------branchName_version.task.bug_MONDD]
+====
+git tag -a Prod_1.2.11_OCT17 -m "merged qa to master"
+git push origin Prod_1.2.11_OCT17
+
+deleting a tag:
+==============
+git tag -d beta
+git push origin --delete beta
+
+usefull:
+=======
+git diff --color-words ----->[shows difference between merged branches]
+================================================================< LINUX COMMANDS >====================================================================
+
+create admin new user using git bash in centos mechine:
+=================================================
+1.create ec2 instance
+2.save filename.pem file in your pc
+3.go to file location-->right click-->click on "git bash here"
+4.ssh -i "db-testing.pem" centos@ec2-13-232-115-66.ap-south-1.compute.amazonaws.com  [change root to centos user]
+5.sudo -s [change to root user]
+6.enable port-22 and PasswordAuthentication - yes 
+  *vi /etc/ssh/sshd_config 
+  *service sshd restart/systemctl restart sshd
+7.adduser username
+8.passwd username[enter and confirm password]
+9.usermod -aG wheel username[members of the wheel group have sudo privileges]
+10.su - username[Test sudo access on new user account]
+11.sudo ls -la /root[only accessible to the root user.]
+
+dbuser {Dru@999}
+
+
+vi editor:
+=========
+i  - insert mode
+q! - dont save
+wq - save and quit
+
+G  - end of file
+1G - start of file
+$  - end of line	
+^  - start of line
+%  - blocks matching
+commands:
+=========
+[cd -]  last working directory
+[cd ~]  user home directory		
+mkdir -p x/y/z [creating nested folders]												
+logs:
+====
+tail -222f /logs/report.json
+
+changing hostname:
+==================
+hostnamectl set-hostname your-new-hostname
+
+login into remote server:
+=========================
+ssh -p portno username@IP/dns
+
+executing command in remote-server:
+===================================
+ssh -p portno username@IP/dns command
+ssh -p 15951 drucareqa@10.0.2.103 'python test.py veer'     [asks pwd]
+sshpass -p 'pwd'  ssh -p 15951 drucareqa@10.0.2.103 'python test.py veer' [passing pwd in command using sshpass]
+
+renaming:
+=========
+mv oldname newname
+
+deleting:
+========
+deleting empty directory------------------------->rmdir directoryName
+deleting non-empty directory--------------------->rm -r directoryName [or] rm -rf directoryName
+deleting a file---------------------------------->rm filename  		  [or] rm -f filename
+
+copying directory to remote server:
+===================================
+scp -P portno -r path/to/directory  username@IP:/destination/path
+scp -P 15951 -r ./deploy veer.n@13.233.123.16:/home/veer.n/       [deploy directory is copied into destination]
+
+copying file to remote server:
+===================================
+scp -P portno path/to/file username@IP:/destination/path
+scp -P 15951 file.txt veer.n@13.233.123.16:/home/veer.n/       [deploy directory is copied into destination]
+
+memory information:
+==================
+df -h  ------------------------[sytem space]
+du -h  ------------------------[free space]
+du -h /opt/app/jarbackup-------[size of any directory]
+du -sh  <foldername>
+free -h
+
+
+exporting a port in centos:
+===========================
+rootusers.com/how-to-open-a-port-in-centos-7-with-firewalld/
+www.rootusers.com
+How To Open A Port In CentOS 7 With Firewalld
+
+contos java installation:
+===========================
+
+yum check-update
+yum upgrade
+yum clean all
+yum install nano wget curl net-tools lsof bash-completion
+
+wget --no-cookies --no-check-certificate --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2Ftechnetwork%2Fjava%2Fjavase%2Fdownloads%2Fjdk8-downloads-2133151.html; oraclelicense=accept-securebackup-cookie;" "download.oracle.com/otn-pub/java/jdk/8u201-b09/42970487e3af4f5aa5bca3f542482c60/jdk-8u201-linux-x64.rpm"
+download.oracle.com
+Unauthorized Request
+
+sudo sh -c "echo export JAVA_HOME=/usr/java/jdk1.8.0_201-amd64/jre >> /etc/environment"
+
+jenkins admin login:
+===================
+/var/lib/jenkins/secrets/initialAdminPassword
+
+jenkins:      
+========
+passphrase:
+
+add ssh server
+
+Name	Dev Server
+Hostname 49.207.6.227
+Username jenkins
+
+check password authentication
+
+Passphrase / Password       *********
+Port                        2233
+Timeout (ms)                300000
+Proxy port                  0
+
+cronjob:
+=======
+on 1st day of every month::::::::::cron job::::::::::::::[0 0 1 * * /usr/bin/python /home/drucareqa/logszip/logszipping.py]
+
+mail file----------------------/var/mail/$USERNAME
+file location-----------------/etc/crontab
+logs--------------------------/var/log/cron
+
+/usr/lib/cron/cron.allow
+/usr/lib/cron/cron.deny
+
+
+permissions for root user:
+=========================
+for giving permissions on few commands add below line to "sudoers" file by using "sudo visudo" command
+->username ALL = NOPASSWD: /usr/bin/mv, /usr/sbin/service, /usr/bin/kill       
+->username ALL=(ALL) NOPASSWD:ALL  ------------[permissions on all commands]
+
+
+OS HARDENIG:
+============
+https://www.tecmint.com/security-and-hardening-centos-7-guide/
+https://www.tecmint.com/centos-7-hardening-and-security-guide/
+
+
+13. Remove Unnecessary Software Packages
+rpm -qa   --------------------------------------------Verify installed packages
+yum list installed >> installed.txt-------------------Verify installed packages
+yum remove package_name-------------------------------delete a package
+
+
+15. Remove Unneeded Services
+# ss -tulpn
+# systemctl list-units -t service
+# yum remove service-name
+
+
+27. Lock Accounts
+lock:
+# passwd -l username ---------------user cannot login 
+# usermod -L username
+unlock:
+# passwd -u username  
+# usermod -U username
+
+28.Prevent Accounts Shell Access:[/usr/sbin/nologin or /bin/false]
+# usermod -s /bin/false username-----------------------user cannot login
+or
+# useradd -s /usr/sbin/nologin username
+
+# chage -d 0 username[ immediate password expiration (user must change password on next login)]
+
+
+29.POSIX ACLs 
+# setfacl -m u:user:rw file-------------change user permissions
+# getfacl file
+
+Disable SSH Root Login:
+#vi /etc/ssh/sshd_config----->PermitRootLogin no
+#systemctl restart sshd
+
+Allowing Users:
+add  below property to allow particular users in "/etc/ssh/sshd_config" file
+{AllowUsers username1 username2} 
+#systemctl restart sshd
+
+/var/log/secure
+/etc/hosts.deny 
+
+================================================================< DOCKERS >====================================================================
+
+Docker:  [https://docker-curriculum.com/#terminology]
+=======
+$ sudo docker pull busybox(image-name)
+$ sudo docker images 
+
+
+docker build -t reponame:tagname .
+docker run -d -p 8094:8094 --name inventory 69d6afdc52f9
+
+
+run:
+---
+$ sudo docker run busybox(image-name)
+$ docker run busybox echo "hello from busybox"  [executes single command]
+$ docker run -it busybox sh    [run more than just one command in a container][it=interactive tty]
+
+
+eureka.instance.preferIpAddress
+status:
+------
+$ sudo docker ps  [shows you all containers that are currently running]
+$ docker ps -a    [shows list of all containers that we ran]
+du -sh  <foldername>
+remove:
+-------
+$ docker rm containerId-1 containerId-2 ...
+$ docker rm $(docker ps -a -q -f status=exited)
+	-q ==returns the numeric IDs 
+	-f ==filters output based on conditions provided.
+note:--rm flag that can be passed to "docker run" which automatically deletes the container once it's exited.[ex:$ docker run --rm prakhar1989/static-site]
+$ docker container prune [ WARNING! This will remove all stopped containers]
+$ docker rmi imageId[delete images] -f
+
+running a service in docker:
+===========================
+$ docker run --rm prakhar1989/static-site
+note:{in this case, the client is not exposing any ports so we need to re-run the docker run command to publish ports}
+$ docker run -d -P --name static-site prakhar1989/static-site
+note:{
+		-d will detach our terminal[detached mode]
+		-P will publish all exposed ports to random ports
+		--name corresponds to a name we want to give to container
+		}
+$ docker port container-name/id  [to know the published ports]
+80/tcp -> 0.0.0.0:32769
+443/tcp -> 0.0.0.0:32768
+
+$ docker run -p 8888:80 image-name
+
+stop:
+----
+$ docker stop containerId/name
+
+
+sts:
+====
+auto import-------------> ctrl+shift +o
+align-------------------> ctrl+shift +f
+delete select lines-----> ctrl +d
+to uppercase------------> ctrl+shift+x
+to lowercase------------> ctrl+shift+y
+renaming all fields-----> alt+shift+r
+
+aws:
+====
+create ami 1a,1b,1c
+select 1b---actions--image--create image
+no reboot cheked
+delete on termination-unchecked
+qa-1b server in N.Virginia
+ami-nv-qa-app-1b
+m5.large
+
+team users creation:
+====================
+1.user creation:             
+ useradd gammadev
+ useradd alphadev
+ useradd betadev
+ useradd deltadev
+
+ 
+Note:
+		userdel -r username   (or) userdel username
+		cat /etc/os-release
+
+		https://wiki.jenkins.io/display/JENKINS/Publish+Over#PublishOver-transfer
+		https://mpreisle.fedorapeople.org/ssg_new_guides/ssg-rhel7-guide-stig-rhel7-server-upstream.html#xccdf_org.ssgproject.content_group_permissions
+
+password strength:
+		vi /etc/security/pwquality.conf
+		minlen = 9
+		minclass = 4
+password aging/expiration:
+	chage -M 30 uesrname(gammadev,betadev,deltadev,alphadev)
+	chage -M -1 uesrname-----disabling expiration
+
+
+2.create directory in /opt/app/ and copy jars
+ # mkdir gamma_team
+ # cp ipd-0.0.1.jar gamma_team/
+ # cp emr-0.0.1.jar gamma_team/
+ # cp erx.jar gamma_team/
+ # cp website-services-0.0.1.jar gamma_team/
+ # cp gateway-0.0.1.jar gamma_team/
+ # cp quality.jar gamma_team/
+ 
+ # mkdir beta_team
+ # cp appointment-new.jar beta_team/
+ # cp opd-0.0.1.jar beta_team/
+ # cp Appointment.jar beta_team/
+ # cp internal-app-0.0.1.jar beta_team/
+
+ 
+3.change directory permissions        NOte:[chown -R alphadev:alphadev foldername]
+ # chown gammadev gamma_team
+ # chgrp gammadev gamma_team
+ # chmod 550 gamma_team
+ 
+ # chown betadev beta_team
+ # chgrp betadev beta_team
+ # chmod 550 beta_team
+
+4.change scripts permission
+ # chmod 775 ipd
+ # chmod 775 erx
+ # chmod 775 emr
+ # chmod 775 website-service
+ # chmod 775 gateway
+ # chmod 775 quality
+
+ # chmod 775 appointment
+ # chmod 775 appointment-new
+ # chmod 775 opd
+ # chmod 775 internal-app
+ 
+ 755
+ 
+5.changed init script
+PATH_TO_JAR=/opt/app/gamma_team/
+PATH_TO_JAR=/opt/app/beta_team/	
+PID_PATH_NAME=/opt/app/pidfiles/
+
+gamma_team=ipd,erx,emr,website-service,gateway,quality
+beta_team=appointment,appointment-new,opd,internal-app
+
+
+
+references:
+===========
+websocket:
+https://blog.teamtreehouse.com/an-introduction-to-websockets
+
+https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-centos-7
+https://docs.docker.com/install/linux/docker-ce/centos/
+security enhancement:
+https://www.ostechnix.com/linux-troubleshooting-semanage-command-not-found-in-centos-7rhel-7/
+https://www.liberiangeek.net/2014/11/change-openssh-port-centos-7/[good]
+https://www.digitalocean.com/community/tutorials/how-to-set-up-multi-factor-authentication-for-ssh-on-centos-7
+https://www.tecmint.com/disable-ssh-root-login-in-linux/
+https://codefresh.io/docker-tutorial/build-docker-image-dockerfiles/
+
+https://alvinalexander.com/git/git-show-change-username-email-address
+
+https://www.studytonight.com/servlet/url-rewriting-for-session-management.php     [servlet session examples]
+https://www.citusdata.com/blog/2016/07/14/choosing-nosql-hstore-json-jsonb/       [postgres as NoSQL]
+postgresqltutorial.com/postgresql-hstore/										   [hstore tutorial]
+https://medium.com/practo-engineering/blue-green-deployment-on-amazon-aws-38b820518411
+https://www.drissamri.be/blog/technology/starting-modern-java-project-with-jhipster/
+https://blog.couchbase.com/deployment-pipeline-docker-jenkins-java-couchbase/
+xcenter autostart vm's:
+https://support.citrix.com/article/CTX133910
+
+guardduty:
+https://github.com/aws-samples/amazon-guardduty-hands-on/blob/master/README.md
+https://theithollow.com/2018/04/02/protect-your-aws-accounts-with-guardduty/
+
+https://www.git-tower.com/learn/git/faq/change-author-name-email
+$ git config --global user.name "John Doe"
+$ git config --global user.email "john@doe.org"
+
+installing lite-server for running ui-dist in localpc:[install globally]:
+https://www.npmjs.com/package/lite-server
+>npm install -g lite-server
+>go to dist directory and run below command
+lite-server
+
+books download:
+http://it-ebooks.directory/search.html?query=Core+Java%3A+An+Integrated+Approach%2C+New%3A+Includes+All+Versions+upto+Java+8&in=title&page=1
+https://drissamri.be/blog/java/enable-https-in-spring-boot/
+https://www.programiz.com/python-programming/function-argument
+Updated query with top 10 usage limit per doctor:
+-------------------------------------------------
+select * from (
+select list.drug_id, list.created_usr_id, list.usedRank,list.no_of_usages , ROW_NUMBER() OVER ( PARTITION BY list.created_usr_id ) AS rownum
+from 
+(
+
+select drug_id , created_usr_id, count(drug_id) as no_of_usages, 
+DENSE_RANK () OVER (
+PARTITION BY created_usr_id
+ORDER by 
+count(drug_id)
+) as usedRank
+
+FROM
+OPD.PATIENT_PRESCRIPTION_DRUGS_TRANS --where created_usr_id = 220180111000005
+group by created_usr_id, drug_id order by created_usr_id, usedRank desc 
+) as list
+) as query
+where query.rownum <= 10	
+
+==========================================================================================================
+starting xe,rocketchat,openproject
+
+XE:
+
+cd /opt/xe..
+.ctls script start
+
+Open Proj:
+
+docker container openproject start
+Firsttime:
+docker run -d -p 7889:80 --name openproject -e SECRET_KEY_BASE=secret -v /var/lib/openproject/pgdata:/var/lib/postgresql/9.6/main -v /var/lib/openproject/logs:/var/log/supervisor -v /var/lib/openproject/static:/var/db/openproject openproject/community:8
+sudo firewall-cmd --zone=public --permanent --add-port=7889/tcp
+
+Rocket chat:
+/etc/init.d/rocketchat_all start
+
+
+===============================================================================================================
+
+Python - flask commands
+-------------------------
+python -m pip install --upgrade pip
+
+pip install flask flask_restful flask_jsonpify
+
+
+
+
+
+http://49.207.6.227:8761/eureka/apps/EMR-SERVICE-VEER/dru.test01:emr-service-veer:8058/status?value=DOWN
+unregistoring from eureka manually

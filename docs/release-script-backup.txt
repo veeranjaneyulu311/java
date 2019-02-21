@@ -1,0 +1,622 @@
+dmz-1a:
+=======
+import sys
+import os
+import subprocess as sp
+import datetime
+import time
+
+#list of services with their respective pid files
+
+services_list={'zuul':['Zuul-EdgeServer-0.0.1-SNAPSHOT.jar','ZullServerService-pid'],'spring-boot-admin':['Spring-Boot-Admin-Server-0.0.1-SNAPSHOT.jar','SpringBootAdmin-pid'],'configserver':['Config-Server-0.0.1-SNAPSHOT.jar','ConfigServerService-pid'],'eureka':['Eureka-Server-0.0.1-SNAPSHOT.jar','EurekaService-pid'],'appointment':['appointment.jar',''],'insurance':['insurance-0.0.1.jar','insurance-pid'],'login':['login-reg-0.0.1.jar','login-Service-pid'],'promosms':['promosms-0.0.1.jar','promosms-pid'],'catalog':['settings-0.0.1.jar','CatalogModule-pid'],'billing':['billing-0.0.1.jar','billingService-pid'],'emr':['emr-0.0.1.jar','emr-pid'],'inventory':['inventory-0.0.1.jar','inventory-pid'],'nursing-care':['nursing-care-0.0.1.jar','NursingCareService-pid'],'quality':['quality.jar','qualityService-pid'],'website-service':['website-services-.0.1.jar','website-services-pid'],'communication':['communication-0.0.1-SNAPSHOT.jar','communicationService-pid'],'erx':['erx.jar','ERXService-pid'],'lab':['lab-0.0.1.jar','lab-pid'],'pharmacy':['pharmacy-0.0.1.jar','pharmacymodule-pid'], 'reports':['report-module-0.0.1.jar','reports-pid'],'practice':['practice.jar','practice-temp'],'ipd':['ipd-0.0.1.jar','ipdService-pid'],'opd':['opd-0.0.1.jar','opdService-pid']}
+
+
+
+services_list_QA_1a=['appointment','login','practice','catalog','billing','quality','reports','opd']
+
+services_list_QA_1b=['emr','erx','pharmacy','ipd','insurance','setting']
+
+services_list_QA_1c=['chat','gateway','imaging','inventory','lab','nursing-care','patientportal','website']
+
+
+#list of variables
+service_name=sys.argv[1]
+service_jar_name=services_list[service_name][0]
+jenkins_deploy_directory='/home/jenkins/deploy/{}'.format(service_jar_name)
+
+user_name='drucareqa'
+pwd='Dru@Qa@123'
+port='15951'
+ip_1a='10.0.0.82'
+ip_1b='10.0.1.140'
+ip_1c='10.0.2.120'
+remote_deploy_folder='/home/drucareqa/deploy/'
+#if services_list.has_key(service_name):
+
+if service_name in services_list_QA_1a:
+        print('copying {} of jenkins nv-qa-dmz-1a to {} of nv-qa-app-1a'.format(service_jar_name,remote_deploy_folder))
+        sp.call(['sudo','sshpass','-p',pwd,'scp','-P',port,jenkins_deploy_directory,'{}@{}:{}'.format(user_name,ip_1a,remote_deploy_folder)])
+        sp.call(['sudo','sshpass','-p',pwd,'ssh','-p',port,'{}@{}'.format(user_name,ip_1a),'python services.py {}'.format(service_name)])
+
+elif service_name in services_list_QA_1b:
+        print('copying {} of nv-qa-dmz-1a to {} of nv-qa-app-1b'.format(service_jar_name,remote_deploy_folder))
+        sp.call(['sudo','sshpass','-p',pwd,'scp','-P',port,jenkins_deploy_directory,'{}@{}:{}'.format(user_name,ip_1b,remote_deploy_folder)])
+        sp.call(['sudo','sshpass','-p',pwd,'ssh','-p',port,'{}@{}'.format(user_name,ip_1b),'python services.py {}'.format(service_name)])
+
+elif service_name in services_list_QA_1c:
+        print('copying {} of nv-qa-dmz-1a to {} of nv-qa-app-1c'.format(service_jar_name,remote_deploy_folder))
+        sp.call(['sudo','sshpass','-p',pwd,'scp','-P',port,jenkins_deploy_directory,'{}@{}:{}'.format(user_name,ip_1c,remote_deploy_folder)])
+        sp.call(['sudo','sshpass','-p',pwd,'ssh','-p',port,'{}@{}'.format(user_name,ip_1c),'python services.py {}'.format(service_name)])
+
+else:
+        print('no such service')
+        print('Avilable services are:')
+        print('\n'.join( services_list.keys()))
+==================================================================================================================================================================		
+
+nv-qa-app-1a:
+=============
+import sys
+import os
+import subprocess as sp
+import datetime
+import time
+
+#list of services with their respective pid files
+
+services_list_QA_1a={'zuul':['Zuul-EdgeServer-0.0.1-SNAPSHOT.jar','ZullServerService-pid'],'spring-boot-admin':['Spring-Boot-Admin-Server-0.0.1-SNAPSHOT.jar','SpringBootAdmin-pid'],'configserver':['Config-Server-0.0.1-SNAPSHOT.jar','ConfigServerService-pid'],'eureka':['Eureka-Server-0.0.1-SNAPSHOT.jar','EurekaService-pid'],'appointment':['appointment.jar',''],'login':['login-reg-0.0.1.jar','login-Service-pid'],'promosms':['promosms-0.0.1.jar','promosms-pid'],'catalog':['settings-0.0.1.jar','CatalogModule-pid'],'billing':['billing-0.0.1.jar','billingService-pid'],'quality':['quality.jar','qualityService-pid'],'communication':['communication-0.0.1-SNAPSHOT.jar','communicationService-pid'],'reports':['report-module-0.0.1.jar','reports-pid'],'practice':['practice.jar','practice-temp'],'opd':['opd-0.0.1.jar','opdService-pid']}
+
+#list of variables
+service_name=sys.argv[1]
+service_jar_name=services_list_QA_1a[service_name][0]
+jenkins_deploy_directory='/home/drucareqa/deploy/{}'.format(service_jar_name)
+
+#This function returns the PID of the given service
+def get_pid():
+         cmd="ps -eaf|grep "+service_jar_name+"|grep -v grep|awk '{print $2}'"
+         return sp.check_output(cmd,shell=True).strip()
+
+
+
+
+#This function stops the given service and removes PID file
+def kill_process():
+         print('service={}       jar::{}      PID::{}'.format(service_name,service_jar_name,pid))
+         print('stopping the service {}'.format(service_name))
+         print('killing process')
+         sp.call(['sudo','kill','-9',pid])
+         print('process is killed')
+#         tmp_file_path='/tmp/{}'.format(services_list[service_name][1])
+#         if os.path.isfile(tmp_file_path):
+#               print("removing the pid file {}".format(tmp_file_path))
+#               sp.call(['rm','-f',tmp_file_path])
+         print('{} Service is stopped'.format(service_name))
+
+#It creates backup directory with today's date
+def create_backup_directory():
+        if not(os.path.isdir(backup_directory)):
+                os.mkdir(backup_directory)
+
+
+
+
+#This function renames recently moved jar in backup directory
+def rename_old_jar():
+        #get all existing files list
+        current_jars=os.listdir(backup_directory)
+        #get current given jars
+        same_jars=list(filter(lambda file:file.startswith(service_jar_name),current_jars))
+        #get recent jar
+        recent_jar=list(filter(lambda file:file==service_jar_name,same_jars))
+        if len(recent_jar)!=0:
+                new='{}/{}.{}'.format(backup_directory,recent_jar[0],len(same_jars)-1)
+                sp.call(['sudo','mv','{}/{}'.format(backup_directory,service_jar_name),new])
+                verify()
+        else:
+                verify()
+
+
+
+
+
+#It performs following operations 'taking backup of old jar' and 'running new jar'
+def release():
+         print("moving {} [{}] from {} to {}".format(service_jar_name,os.path.getsize(source_location),source_location,backup_directory))
+         if sp.call(['sudo','mv',source_location,backup_directory])==0:
+                print("copying {} [{}] from {} to /opt/app".format(service_jar_name,os.path.getsize(jenkins_deploy_directory),jenkins_deploy_directory))
+                sp.call(['cp',jenkins_deploy_directory,destination])
+                print('starting the {} service'.format(service_name))
+                sp.call(['sudo','service',service_name,'start'])
+                print('started the {} service'.format(service_name))
+         else:
+                print('failed to move')
+
+#It verifies existence of  jar in /opt/app and /home/drucareqa/deploy/
+def verify():
+        if (os.path.isfile(source_location)):
+                if (os.path.isfile(jenkins_deploy_directory)):
+                        release()
+                else:
+                        print('No suchfile or directory::{}'.format(jenkins_deploy_directory))
+        else:
+                print('No suchfile or directory::{}'.format(source_location))
+
+
+
+
+if services_list_QA_1a.has_key(service_name):
+        today_date=datetime.datetime.now().strftime("%Y-%b-%d")
+        backup_directory='/opt/app/jarbackup/{}'.format(today_date)
+        source_location='/opt/app/{}'.format(service_jar_name)
+        destination='/opt/app/'
+        print('server 1a')
+        pid=get_pid()
+
+        #stopping service
+        if pid=='':
+                print("{} is not running".format(service_name))
+        else:
+                kill_process()
+                time.sleep(6)
+
+        #create backup directory
+        create_backup_directory()
+
+        #taking backup
+        rename_old_jar()
+        new_pid=get_pid()
+        if new_pid!='':
+                print('service::{}       jar::{}      newPID::{}'.format(service_name,service_jar_name,new_pid))
+else:
+        print('no such service')
+        print('Avilable services are:')
+        print('\n'.join( services_list.keys()))
+
+==================================================================================================================================================================
+nv-qa-app-1b:
+=============
+import sys
+import os
+import subprocess as sp
+import datetime
+import time
+
+#list of services with their respective pid files
+
+services_list_QA_1b={'emr':['emr-0.0.1.jar','emr-pid'],'erx':['erx.jar','ERXService-pid'],'pharmacy':['pharmacy-0.0.1.jar','pharmacy-pid'],'practice':['practice.jar','practice-temp'],'ipd':['ipd-0.0.1.jar','ipd-pid'],'insurance':['insurance-0.0.1.jar','insurance-pid'],'setting':['setting-0.0.1.jar','settingsmodule-pid']}
+
+
+#reading name of the service throuh command line
+service_name=sys.argv[1]
+
+
+#This function returns the PID of the given service
+def get_pid():
+         cmd="ps -eaf|grep "+service_jar_name+"|grep -v grep|awk '{print $2}'"
+         return sp.check_output(cmd,shell=True).strip()
+
+
+
+
+#This function stops the given service and removes PID file
+def kill_process():
+         print('service={}       jar::{}      PID::{}'.format(service_name,service_jar_name,pid))
+         print('stopping the service {}'.format(service_name))
+         print('killing process')
+         sp.call(['sudo','kill','-9',pid])
+         print('process is killed')
+#         tmp_file_path='/tmp/{}'.format(services_list_QA_1b[service_name][1])
+#         if os.path.isfile(tmp_file_path):
+#               print("removing the pid file {}".format(tmp_file_path))
+#               sp.call(['rm','-f',tmp_file_path])
+         print('{} Service is stopped'.format(service_name))
+
+		 
+#This function renames recently moved jar in backup directory
+def rename_old_jar():
+        #get all existing files list
+        current_jars=os.listdir(backup_directory)
+        #get current given jars
+        same_jars=list(filter(lambda file:file.startswith(service_jar_name),current_jars))
+        #get recent jar
+        recent_jar=list(filter(lambda file:file==service_jar_name,same_jars))
+        if len(recent_jar)!=0:
+                new='{}/{}.{}'.format(backup_directory,recent_jar[0],len(same_jars)-1)
+                sp.call(['sudo','mv','{}/{}'.format(backup_directory,service_jar_name),new])
+                verify()
+        else:
+                verify()
+
+
+
+
+
+#It performs following operations 'taking backup of old jar' and 'running new jar'
+def release():
+         print("moving {} [{}] from {} to {}".format(service_jar_name,os.path.getsize(source_location),source_location,backup_directory))
+         if sp.call(['sudo','mv',source_location,backup_directory])==0:
+                print("copying {} [{}] from {} to /opt/app".format(service_jar_name,os.path.getsize(jenkins_deploy_directory),jenkins_deploy_directory))
+                sp.call(['cp',jenkins_deploy_directory,destination])
+                print('starting the {} service'.format(service_name))
+                sp.call(['sudo','service',service_name,'start'])
+                print('started the {} service'.format(service_name))
+         else:
+                print('failed to move')
+
+#It verifies existence of  jar in /opt/app and /home/drucareqa/deploy/
+def verify():
+        if (os.path.isfile(source_location)):
+                if (os.path.isfile(jenkins_deploy_directory)):
+                        release()
+                else:
+                        print('No suchfile or directory::{}'.format(jenkins_deploy_directory))
+        else:
+                print('No suchfile or directory::{}'.format(source_location))
+
+
+
+if services_list_QA_1b.has_key(service_name):
+        #list of vraibles used
+        service_jar_name=services_list_QA_1b[service_name][0]
+        today_date=datetime.datetime.now().strftime("%Y-%b-%d")
+        backup_directory='/opt/app/jarbackup/{}'.format(today_date)
+        source_location='/opt/app/{}'.format(service_jar_name)
+        jenkins_deploy_directory='/home/drucareqa/deploy/{}'.format(service_jar_name)
+        destination='/opt/app/'
+        print('server 1b')
+        pid=get_pid()
+
+        #stopping service
+        if pid=='':
+                print("{} is not running".format(service_name))
+        else:
+                kill_process()
+                time.sleep(6)
+
+        #create backup directory
+        create_backup_directory()
+
+        #taking backup
+        rename_old_jar()
+        new_pid=get_pid()
+        if new_pid!='':
+                print('service::{}       jar::{}      newPID::{}'.format(service_name,service_jar_name,new_pid))
+else:
+        print(service_name+' service is not availble in Qa-1b')
+        print('Avilable services are:')
+        print('\n'.join( services_list_QA_1b.keys()))
+=================================================================================================================================================================
+nv-qa-app-1c:
+=============
+import sys
+import os
+import subprocess as sp
+import datetime
+import time
+
+
+
+#list of services with their respective pid files
+services_list_QA_1c={'chat':['chat-0.0.1.jar','chat-pid'],'gateway':['gateway-0.0.1.jar','gateway-pid'],'imaging':['imaging-0.0.1.jar','imagingService-pid'],'inventory':['inventory-0.0.1.jar','inventory-pid'],'lab':['lab-0.0.1.jar','lab-pid'],'nursing-care':['nursing-care-0.0.1.jar','nursing-care-pid'],'patientportal':['patient-portal-0.0.1.jar','patientportal-pid'],'website':['website-services-0.0.1.jar','website-services-pid'],'practice':['practice.jar','practice-temp']}
+
+#list of variables
+
+service_name=sys.argv[1]
+
+
+
+#This function returns the PID of the given service
+def get_pid():
+         cmd="ps -eaf|grep "+service_jar_name+"|grep -v grep|awk '{print $2}'"
+         return sp.check_output(cmd,shell=True).strip()
+
+
+
+
+#This function stops the given service and removes PID file
+def kill_process():
+         print('service={}       jar::{}      PID::{}'.format(service_name,service_jar_name,pid))
+         print('stopping the service {}'.format(service_name))
+         print('killing process')
+         sp.call(['sudo','kill','-9',pid])
+         print('process is killed')
+#         tmp_file_path='/tmp/{}'.format(services_list_QA_1c[service_name][1])
+#         if os.path.isfile(tmp_file_path):
+#               print("removing the pid file {}".format(tmp_file_path))
+#               sp.call(['rm','-f',tmp_file_path])
+         print('{} Service is stopped'.format(service_name))
+
+#It creates backup directory with today's date
+def create_backup_directory():
+        if (os.path.isdir(backup_directory)==False):
+                os.mkdir(backup_directory)
+
+
+
+
+#This function renames recently moved jar in backup directory
+def rename_old_jar():
+        #get all existing files list
+        current_jars=os.listdir(backup_directory)
+        #get current given jars
+        same_jars=list(filter(lambda file:file.startswith(service_jar_name),current_jars))
+        #get recent jar
+        recent_jar=list(filter(lambda file:file==service_jar_name,same_jars))
+        if len(recent_jar)!=0:
+                new='{}/{}.{}'.format(backup_directory,recent_jar[0],len(same_jars)-1)
+                sp.call(['sudo','mv','{}/{}'.format(backup_directory,service_jar_name),new])
+                verify()
+        else:
+                verify()
+
+
+
+
+
+#It performs following operations 'taking backup of old jar' and 'running new jar'
+def release():
+         print("moving {} [{}] from {} to {}".format(service_jar_name,os.path.getsize(source_location),source_location,backup_directory))
+         if sp.call(['sudo','mv',source_location,backup_directory])==0:
+                print("copying {} [{}] from {} to /opt/app".format(service_jar_name,os.path.getsize(jenkins_deploy_directory),jenkins_deploy_directory))
+                sp.call(['cp',jenkins_deploy_directory,destination])
+                print('starting the {} service'.format(service_name))
+                sp.call(['sudo','service',service_name,'start'])
+                print('started the {} service'.format(service_name))
+         else:
+                print('failed to move')
+
+#It verifies existence of  jar in /opt/app and /home/drucareqa/deploy/
+def verify():
+        if (os.path.isfile(source_location)):
+                if (os.path.isfile(jenkins_deploy_directory)):
+                        release()
+                else:
+                        print('No suchfile or directory::{}'.format(jenkins_deploy_directory))
+        else:
+                print('No suchfile or directory::{}'.format(source_location))
+
+
+
+if services_list_QA_1c.has_key(service_name):
+        service_jar_name=services_list_QA_1c[service_name][0]
+        today_date=datetime.datetime.now().strftime("%Y-%b-%d")
+        backup_directory='/opt/app/jarbackup/{}'.format(today_date)
+        source_location='/opt/app/{}'.format(service_jar_name)
+        jenkins_deploy_directory='/home/drucareqa/deploy/{}'.format(service_jar_name)
+        destination='/opt/app/'
+
+
+        pid=get_pid()
+
+        #stopping service
+        if pid=='':
+                print("{} is not running".format(service_name))
+        else:
+                kill_process()
+                time.sleep(6)
+
+        #create backup directory
+        create_backup_directory()
+
+        #taking backup
+        rename_old_jar()
+        new_pid=get_pid()
+        if new_pid!='':
+                print('service::{}       jar::{}      newPID::{}'.format(service_name,service_jar_name,new_pid))
+else:
+        print(service_name+' service is not available in Qa-1c')
+        print('Avilable services are:')
+        print('\n'.join( services_list_QA_1c.keys()))
+==================================================================================================================================================================
+dev:
+====
+import sys
+import os
+import subprocess as sp
+import datetime
+import time
+
+#list of services with their respective pid files
+
+services_list={'zuul':['Zuul-EdgeServer-0.0.1-SNAPSHOT.jar','ZullServerService-pid'],'spring-boot-admin':['Spring-Boot-Admin-Server-0.0.1-SNAPSHOT.jar','SpringBootAdmin-pid'],'configserver':['Config-Server-0.0.1-SNAPSHOT.jar','ConfigServerService-pid'],'eureka':['Eureka-Server-0.0.1-SNAPSHOT.jar','EurekaService-pid'],'appointment':['appointment.jar',''],'insurance':['insurance-0.0.1.jar','insurance-pid'],'login':['login-reg-0.0.1.jar','login-Service-pid'],'promosms':['promosms-0.0.1.jar','promosms-pid'],'catalog':['settings-0.0.1.jar','CatalogModule-pid'],'billing':['billing-0.0.1.jar','billingService-pid'],'emr':['emr-0.0.1.jar','emr-pid'],'inventory':['inventory-0.0.1.jar','inventory-pid'],'nursing-care':['nursing-care-0.0.1.jar','NursingCareService-pid'],'quality':['quality.jar','qualityService-pid'],'website-service':['website-services-.0.1.jar','website-services-pid'],'communication':['communication-0.0.1-SNAPSHOT.jar','communicationService-pid'],'erx':['erx.jar','ERXService-pid'],'lab':['lab-0.0.1.jar','lab-pid'],'pharmacy':['pharmacy-0.0.1.jar','pharmacymodule-pid'], 'reports':['report-module-0.0.1.jar','reports-pid'],'practice':['practice.jar','practice-temp'],'ipd':['ipd-0.0.1.jar','ipdService-pid'],'opd':['opd-0.0.1.jar','opd-pid']}
+
+
+#list of variables
+
+service_name=sys.argv[1]
+service_jar_name=services_list[service_name][0]
+today_date=datetime.datetime.now().strftime("%Y-%b-%d")
+backup_directory='/opt/app/jarbackup/{}'.format(today_date)
+source_location='/opt/app/{}'.format(service_jar_name)
+jenkins_deploy_directory='/home/jenkins/deploy/{}'.format(service_jar_name)
+destination='/opt/app/'
+
+
+
+#This function returns the PID of the given service
+def get_pid():
+         cmd="ps -eaf | grep "+service_jar_name+"|grep -v grep| awk '{print $2}'"
+         return sp.check_output(cmd,shell=True).strip()
+
+#This function stops the given service and removes PID file
+def kill_process():
+         print('service={}       jar::{}      PID::{}'.format(service_name,service_jar_name,pid))
+         print('stopping the service {}'.format(service_name))
+         print('killing process')
+         sp.call(['kill','-9',pid])
+         print('process is killed')
+         tmp_file_path='/tmp/{}'.format(services_list[service_name][1])
+         if os.path.isfile(tmp_file_path):
+                print("removing the pid file {}".format(tmp_file_path))
+                sp.call(['rm','-f',tmp_file_path])
+         print('{} Service is stopped'.format(service_name))
+
+
+
+
+#It creates backup directory with today's date
+def create_backup_directory():
+        if (os.path.isdir(backup_directory)==False):
+                os.mkdir(backup_directory)
+
+
+
+
+#This function renames recently moved jar in backup directory
+def rename_old_jar():
+        #get all existing files list
+        current_jars=os.listdir(backup_directory)
+        #get current given jars
+        same_jars=list(filter(lambda file:file.startswith(service_jar_name),current_jars))
+        #get recent jar
+        recent_jar=list(filter(lambda file:file==service_jar_name,same_jars))
+        if len(recent_jar)!=0:
+                new='{}/{}.{}'.format(backup_directory,recent_jar[0],len(same_jars)-1)
+                sp.call(['mv','{}/{}'.format(backup_directory,service_jar_name),new])
+                verify()
+        else:
+                verify()
+
+
+#It performs following operations 'taking backup of old jar' and 'running new jar'
+def release():
+         print("moving {} [{}] from {} to {}".format(service_jar_name,os.path.getsize(source_location),source_location,backup_directory))
+         if sp.call(['mv',source_location,backup_directory])==0:
+                print("copying {} [{}] from {} to /opt/app".format(service_jar_name,os.path.getsize(jenkins_deploy_directory),jenkins_deploy_directory))
+                sp.call(['cp',jenkins_deploy_directory,destination])
+                print('starting the {} service'.format(service_name))
+                sp.call(['service',service_name,'start'])
+                print('started the {} service'.format(service_name))
+         else:
+                print('failed to move')
+
+
+
+
+
+#It verifies existence of  jar in /opt/app and /home/jenkins/deploy/
+def verify():
+        if (os.path.isfile(source_location)):
+                if (os.path.isfile(jenkins_deploy_directory)):
+                        release()
+                else:
+                        print('No suchfile or directory::{}'.format(jenkins_deploy_directory))
+        else:
+                print('No suchfile or directory::{}'.format(source_location))
+
+
+
+
+if services_list.has_key(service_name):
+        pid=get_pid()
+
+        #stopping service
+        if pid=='':
+                print("{} is not running".format(service_name))
+        else:
+                kill_process()
+                time.sleep(6)
+
+        #create backup directory
+        create_backup_directory()
+
+        #taking backup
+        rename_old_jar()
+        new_pid=get_pid()
+        if new_pid!='':
+                print('service::{}       jar::{}      newPID::{}'.format(service_name,service_jar_name,new_pid))
+else:
+        print('no such service')
+        print('Avilable services are:')
+        print('\n'.join( services_list.keys()))
+
+=================================================================================================================================================================
+dev logs zipping script:
+========================
+#!/usr/bin/python
+import os
+from datetime import date
+from datetime import timedelta
+from datetime import datetime
+from zipfile import ZipFile
+
+
+logs_directory='/logs'
+today=date.today()
+before_days=timedelta(days=4)
+zip_upto_date=today-before_days
+zip_filename='logs-dev-{}.zip'.format(today)
+zip=ZipFile(zip_filename, 'w')
+
+os.chdir(logs_directory)
+logs_list=os.listdir('.')
+with zip:
+        for file in logs_list:
+                if datetime.fromtimestamp(os.path.getmtime(file)).date()<zip_upto_date:
+                        zip.write(file)
+			os.remove(file)
+========================================================================================================================================================================
+qa-1a logs zipping script:
+==========================
+#!/usr/bin/python
+import os
+from datetime import date
+from datetime import timedelta
+from datetime import datetime
+from zipfile import ZipFile
+
+
+logs_directory='/logs'
+today=date.today()
+before_days=timedelta(days=4)
+zip_upto_date=today-before_days
+zip_filename='logs-QA-1a-{}.zip'.format(today)
+zip=ZipFile(zip_filename, 'w')
+
+os.chdir(logs_directory)
+logs_list=os.listdir('.')
+with zip:
+        for file in logs_list:
+                if datetime.fromtimestamp(os.path.getmtime(file)).date()<zip_upto_date:
+                        zip.write(file)
+			os.remove(file)
+========================================================================================================================================================================
+
+Dockers Scripts:
+================
+start.sh :-
+---------
+#/bin/sh
+export ECS_INSTANCE_IP_ADDRES=S`curl -s 169.254.169.254/latest/meta-data/local-ipv4`
+exec java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app.jar
+~
+
+env.sh :-
+--------
+#/bin/sh
+ECS_INSTANCE_IP_ADDRESS=`curl -s 169.254.169.254/latest/meta-data/local-ipv4`
+~
+
+Dockerfile :-
+------------
+FROM openjdk:8-jdk-alpine
+VOLUME /tmp
+VOLUME /logs
+RUN apk upgrade
+RUN apk --no-cache add curl
+ADD Config-server-0.0.1-SNAPSHOT.jar app.jar
+ADD start.sh start.sh
+ENV JAVA_OPTS=""
+EXPOSE 8888
+ENTRYPOINT ["sh", "-c","/start.sh" ]
+
+
+curl -fsSL https://get.docker.com/ | sh
+sudo systemctl status docker
+yum -y upgrade
+
+
+		
+		 		 
+
+

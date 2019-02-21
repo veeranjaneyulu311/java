@@ -1,0 +1,14 @@
+https://medium.com/@sumitk002/streaming-aws-cloudwatch-logs-to-your-own-elk-logging-solution-2bbd32f25100
+https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AnalyzingLogData.html
+https://aws.amazon.com/blogs/aws/new-amazon-cloudwatch-logs-insights-fast-interactive-log-analytics/
+
+
+subscribe to log group event--stream to lambda/AWS ElasticSearch + Kibana
+
+vpc flow logs
+route 53 logs
+lambda logs
+cloud trail logs(api calls)
+RDS Logs, IoT Logs, ECS Logs, API Gateway Logs, and S3 Server Access Logs, EC2 Instance Logs (via the CloudWatch Agent)
+
+CloudBees Docker Build and Publish
