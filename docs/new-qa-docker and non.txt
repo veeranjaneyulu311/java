@@ -1,0 +1,152 @@
+Filesystem           Size  Used Avail Use% Mounted on
+/dev/mapper/cl-root  8.0G  7.3G  754M  91% /
+devtmpfs              13G     0   13G   0% /dev
+tmpfs                 13G     0   13G   0% /dev/shm
+tmpfs                 13G  970M   12G   8% /run
+tmpfs                 13G     0   13G   0% /sys/fs/cgroup
+/dev/xvdb            5.0G  471M  4.6G  10% /var/lib/docker
+/dev/xvda1          1014M  221M  794M  22% /boot
+tmpfs                2.5G     0  2.5G   0% /run/user/1001
+overlay              5.0G  471M  4.6G  10% /var/lib/docker/overlay2/f298c81046699f23c8bf6a1d6e6fb7115bcfc978fb07d93a9542e97fdf6b4b74/merged
+shm                   64M     0   64M   0% /var/lib/docker/containers/a39b35b4c855d6553c7dcf8b742977d3d11fe2826411fa70b9943e117a127ad9/mounts/shm
+overlay              5.0G  471M  4.6G  10% /var/lib/docker/overlay2/4b440f0a85c170f605b4e5af2d813fbe103ae88ca35da17693713672368f6c4f/merged
+shm                   64M     0   64M   0% /var/lib/docker/containers/6d2b39089e42010354320c4ece2ebdbd62363c54aa4fee2423c5b0b94138ba10/mounts/shm
+overlay              5.0G  471M  4.6G  10% /var/lib/docker/overlay2/479f496d54bba2725a8ac7afdbaa9801a48d10ca6ede5b71116bae07fd95be73/merged
+shm                   64M     0   64M   0% /var/lib/docker/containers/de3821d88d83412eacb75f00f61dd7abadfe8b6e7e57d4207da2400f0ef34b16/mounts/shm
+overlay              5.0G  471M  4.6G  10% /var/lib/docker/overlay2/eaeaac2cdbaee76eeef4646ca5d9aee127aaf1e3b7e1c26d74edfaf99f501d19/merged
+shm                   64M     0   64M   0% /var/lib/docker/containers/b99db877c3e62e8746f49bfbcb28173bc854eea8b72acd77e882a6273e377700/mounts/shm
+overlay              5.0G  471M  4.6G  10% /var/lib/docker/overlay2/7bc3977e0ac3138f0e76f434e7420eb36376621b18cf3894c17e56636bc3726d/merged
+shm                   64M     0   64M   0% /var/lib/docker/containers/2d908e2b478562e76376b982d4c9a21f3c93bebefe67f32c4237c76c238ec7aa/mounts/shm
+overlay              5.0G  471M  4.6G  10% /var/lib/docker/overlay2/c6f33c2b1c485dfbc778dcd215821b6cc4bf76bbbd36fdf1e7092fc7dca50942/merged
+shm                   64M     0   64M   0% /var/lib/docker/containers/990f2c2e36a2725a0acf0d65e78be94e50ef5b0119263578e46564d5340e3690/mounts/shm
+
+stopped:
+=========
+Filesystem           Size  Used Avail Use% Mounted on
+/dev/mapper/cl-root  8.0G  7.3G  753M  91% /
+devtmpfs              13G     0   13G   0% /dev
+tmpfs                 13G     0   13G   0% /dev/shm
+tmpfs                 13G  969M   12G   8% /run
+tmpfs                 13G     0   13G   0% /sys/fs/cgroup
+/dev/xvdb            5.0G  469M  4.6G  10% /var/lib/docker
+/dev/xvda1          1014M  221M  794M  22% /boot
+tmpfs                2.5G     0  2.5G   0% /run/user/1001
+
+
+container prune:
+
+[root@qa drucareqa]# df -h
+Filesystem           Size  Used Avail Use% Mounted on
+/dev/mapper/cl-root  8.0G  7.3G  768M  91% /
+devtmpfs              13G     0   13G   0% /dev
+tmpfs                 13G     0   13G   0% /dev/shm
+tmpfs                 13G  969M   12G   8% /run
+tmpfs                 13G     0   13G   0% /sys/fs/cgroup
+/dev/xvdb            5.0G  462M  4.6G  10% /var/lib/docker
+/dev/xvda1          1014M  221M  794M  22% /boot
+tmpfs                2.5G     0  2.5G   0% /run/user/1001
+
+remove images:
+Filesystem           Size  Used Avail Use% Mounted on
+/dev/mapper/cl-root  8.0G  7.3G  767M  91% /
+devtmpfs              13G     0   13G   0% /dev
+tmpfs                 13G     0   13G   0% /dev/shm
+tmpfs                 13G  969M   12G   8% /run
+tmpfs                 13G     0   13G   0% /sys/fs/cgroup
+/dev/xvdb            5.0G   35M  5.0G   1% /var/lib/docker
+/dev/xvda1          1014M  221M  794M  22% /boot
+tmpfs                2.5G     0  2.5G   0% /run/user/1001
+
+
+
+
+dockers
+-------
+lab
+pharmacy
+inventory
+ipd
+opd
+website
+
+non-docker
+----------
+login 
+emr
+setting
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+3.6 to 2.7
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

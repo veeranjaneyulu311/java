@@ -12,3 +12,7 @@ cloud trail logs(api calls)
 RDS Logs, IoT Logs, ECS Logs, API Gateway Logs, and S3 Server Access Logs, EC2 Instance Logs (via the CloudWatch Agent)
 
 CloudBees Docker Build and Publish
+
+
+sqlite3 SchoolDB.db  
+.open c:/users/mga/desktop/SchoolDB.db

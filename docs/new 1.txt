@@ -76,7 +76,7 @@ if len(recent_jar)!=0:
 
 
 				
-				
+http://varmenise.tumblr.com/post/87976165063/docker-on-centos-jenkins				
 				
 				
  SELECT (a.drug_brand_nm::text || '@@'::text) || b.drug_nm::text AS comb_drugnm,

@@ -616,6 +616,177 @@ sudo systemctl status docker
 yum -y upgrade
 
 
+
+test:
+====
+import sys
+import os
+import subprocess as sp
+import datetime
+import time
+import shutil
+#list of services with their respective pid files
+
+
+beta_team={'setting':['setting-0.0.1.jar','settingsmodule-pid'],'appointment-new':['appointment.jar',''],'opd':['opd-0.0.1.jar','opd-pid'],'login':['login-reg-0.0.1.jar','login-Service-pid']}
+
+gamma_team={'patientportal':['patient-portal-0.0.1.jar','patient-portal-pid'],'ipd':['ipd-0.0.1.jar','ipd-pid'],'erx':['erx.jar','ERXService-pid'],'emr':['emr-0.0.1.jar','emr-pid'],'website-service':['website-services-0.0.1.jar','website-services-pid'],'quality':['quality.jar','qualityService-pid']}
+
+delta_team={'practice':['practice.jar','practice-temp'],'pharmacy':['pharmacy-0.0.1.jar','pharmacymodule-pid'],'reports':['report-module-0.0.1.jar','reports-pid'],'lab':['lab-0.0.1.jar','lab-pid'],'inventory':['inventory-0.0.1.jar','inventory-pid'],'imaging':['imaging-0.0.1.jar','imagingService-pid'],'chat':['chat-0.0.1.jar','chatService-pid']}
+
+ui_release={'app':['/opt/app/dist-test/app','/home/drucaredev/ui/app'],'new':['/opt/app/dist-test/new','/home/drucaredev/ui/new'],'root':['/opt/app/dist-test/root','/home/drucaredev/ui/root']}
+
+
+
+
+#list of variables
+
+service_name=sys.argv[1]
+today_date=datetime.datetime.now().strftime("%Y-%b-%d")
+
+service_jar_name=''
+backup_directory=''
+source_location=''
+destination=''
+jenkins_deploy_directory=''
+tmp_file_path=''
+pid=''
+
+
+#This function returns the PID of the given service
+def get_pid():
+         cmd="ps -eaf | grep "+service_jar_name+"|grep -v grep| awk '{print $2}'"
+         return sp.check_output(cmd,shell=True).strip()
+
+#This function stops the given service and removes PID file
+def kill_process():
+         print('service={}       jar::{}      PID::{}'.format(service_name,service_jar_name,pid))
+         print('stopping the service {}'.format(service_name))
+         print('killing process')
+         sp.call(['kill','-9',pid])
+         print('process is killed')
+         if os.path.isfile(tmp_file_path):
+                print("removing the pid file {}".format(tmp_file_path))
+                sp.call(['rm','-f',tmp_file_path])
+         print('{} Service is stopped'.format(service_name))
+
+
+
+
+#It creates backup directory with today's date
+def create_backup_directory():
+        if (os.path.isdir(backup_directory)==False):
+                os.mkdir(backup_directory)
+
+
+#This function renames recently moved jar in backup directory
+def rename_existing(name_to_be_change):
+        #get all existing files list
+        current_jars=os.listdir(backup_directory)
+        #get current given jars
+        same_jars=list(filter(lambda file:file.startswith(name_to_be_change),current_jars))
+        #get recent jar
+        recent_jar=list(filter(lambda file:file==name_to_be_change,same_jars))
+        if len(recent_jar)!=0:
+                new='{}/{}.{}'.format(backup_directory,recent_jar[0],len(same_jars)-1)
+                if name_to_be_change==service_jar_name:
+                        sp.call(['mv','{}/{}'.format(backup_directory,service_jar_name),new])
+                        verify()
+                else:
+                        os.rename('{}/{}'.format(backup_directory,service_name),new)
+        else:
+                if name_to_be_change==service_jar_name:
+                        verify()
+
+
+
+
+#It performs following operations 'taking backup of old jar' and 'running new jar'
+def release():
+         print("moving {} [{}] from {} to {}".format(service_jar_name,os.path.getsize(source_location),source_location,backup_directory))
+         if sp.call(['mv',source_location,backup_directory])==0:
+                print("copying {} [{}] from {} to {}".format(service_jar_name,os.path.getsize(jenkins_deploy_directory),jenkins_deploy_directory,destination))
+                sp.call(['cp',jenkins_deploy_directory,destination])
+                print('starting the {} service'.format(service_name))
+                sp.call(['service',service_name,'start'])
+                print('started the {} service'.format(service_name))
+         else:
+                print('failed to move')
+
+#It verifies existence of  jar in /opt/app and /home/jenkins/deploy/
+def verify():
+        if (os.path.isfile(source_location)):
+                if (os.path.isfile(jenkins_deploy_directory)):
+                        release()
+                else:
+                        print('No suchfile or directory::{}'.format(jenkins_deploy_directory))
+        else:
+                print('No suchfile or directory::{}'.format(source_location))
+
+
+def start():
+        global pid
+        pid=get_pid()
+
+        #stopping service
+        if pid=='':
+                print("{} is not running".format(service_name))
+        else:
+                kill_process()
+                time.sleep(6)
+
+        #create backup directory
+        create_backup_directory()
+
+        #taking backup
+        rename_existing(service_jar_name)
+        new_pid=get_pid()
+        if new_pid!='':
+                print('service::{}       jar::{}      newPID::{}'.format(service_name,service_jar_name,new_pid))
+
+def startui():
+        create_backup_directory()
+        rename_existing(service_name)
+        shutil.move(source_location,backup_directory)
+        shutil.copytree(jenkins_deploy_directory,source_location)
+
+if beta_team.has_key(service_name):
+        service_jar_name=beta_team[service_name][0]
+        backup_directory='/opt/app/jarbackup/beta_team_jarbackup/{}'.format(today_date)
+        source_location='/opt/app/beta_team/{}'.format(service_jar_name)
+        destination='/opt/app/beta_team/'
+        jenkins_deploy_directory='/home/jenkins/deploy/{}'.format(service_jar_name)
+        tmp_file_path='/opt/app/pidfiles/{}'.format(beta_team[service_name][1])
+        start()
+
+elif gamma_team.has_key(service_name):
+        service_jar_name=gamma_team[service_name][0]
+        backup_directory='/opt/app/jarbackup/gamma_team_jarbackup/{}'.format(today_date)
+        source_location='/opt/app/gamma_team/{}'.format(service_jar_name)
+        destination='/opt/app/gamma_team/'
+        jenkins_deploy_directory='/home/jenkins/deploy/{}'.format(service_jar_name)
+        tmp_file_path='/opt/app/pidfiles/{}'.format(gamma_team[service_name][1])
+        start()
+
+elif delta_team.has_key(service_name):
+        service_jar_name=delta_team[service_name][0]
+        backup_directory='/opt/app/jarbackup/deltateam_jarbackup/{}'.format(today_date)
+        source_location='/opt/app/delta_team/{}'.format(service_jar_name)
+        destination='/opt/app/delta_team/'
+        jenkins_deploy_directory='/home/jenkins/deploy/{}'.format(service_jar_name)
+        tmp_file_path='/opt/app/pidfiles/{}'.format(delta_team[service_name][1])
+        start()
+
+elif ui_release.has_key(service_name):
+        backup_directory='/opt/app/uibackup/{}'.format(today_date)
+        source_location=ui_release[service_name][0]
+        jenkins_deploy_directory=ui_release[service_name][1]
+        startui()
+
+
+else:
+        print('no such service')
+
 		
 		 		 
 

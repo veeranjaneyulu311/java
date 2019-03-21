@@ -1,0 +1,71 @@
+logstash-input-cloudwatch [official plugin but works only to ingest cloudwatch metrics]
+logstash-input-cloudwatch_logs [community given plugin to ingest cloudwatch logs]
+
+/usr/share/logstash/data/plugins/inputs/cloudwatch_logs/.sincedb_fa8dbe910fb4b958f4f48bd7ba933384
+
+
+
+1./usr/share/logstash/bin/logstash-plugin install logstash-input-cloudwatch
+error::::Java HotSpot(TM) 64-Bit Server VM warning: INFO: os::commit_memory(0x00000000ca660000, 899284992, 0) failed; error='Cannot allocate memory' (errno=12)
+http://www.pradeepadiga.me/blog/2017/02/27/elasticsearch-fails-to-start-with-cannot-allocate-memory-error/
+ solution::increase memory size and then install plugin
+ 
+
+2.cd /etc/logstash/
+
+ex:logstash-sample.conf
+# Sample Logstash configuration for creating a simple
+# Beats -> Logstash -> Elasticsearch pipeline.
+
+input {
+  beats {
+    port => 5044
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["http://localhost:9200"]
+    index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
+    #user => "elastic"
+    #password => "changeme"
+  }
+}
+
+3.creating logstash conf file that uses logstash-input-cloudwatch input plugin
+4.executing conf file
+    /usr/share/logstash/bin/logstash -f clw_logs.conf
+	
+/var/lib/docker
+
+
+
+FORBIDDEN/12/index read-only / allow delete (api)]::
+=====================================================
+Edit: i think my problem is low storage. just check your storage first. when it's low, kibana auto changes its config to read-only mode. to deal with it, go to your dev tools console and
+run below command:
+
+
+PUT .kibana/_settings
+{
+"index": {
+"blocks": {
+"read_only_allow_delete": "false"
+}
+}
+}
+
+
+{
+  "hits": 0, 
+  "timeRestore": false, 
+  "description": "", 
+  "title": "Packetbeat PgSQL performance", 
+  "uiStateJSON": "{}", 
+  "panelsJSON": "[{\"col\":1,\"id\":\"Navigation\",\"row\":1,\"size_x\":3,\"size_y\":4,\"type\":\"visualization\",\"panelIndex\":1},{\"col\":4,\"id\":\"PgSQL-Errors\",\"row\":1,\"size_x\":5,\"size_y\":4,\"type\":\"visualization\",\"panelIndex\":2},{\"col\":9,\"id\":\"PgSQL-Methods\",\"row\":1,\"size_x\":4,\"size_y\":4,\"type\":\"visualization\",\"panelIndex\":3},{\"col\":1,\"id\":\"PgSQL-response-times-percentiles\",\"row\":5,\"size_x\":12,\"size_y\":3,\"type\":\"visualization\",\"panelIndex\":4},{\"col\":7,\"id\":\"PgSQL-throughput\",\"row\":8,\"size_x\":6,\"size_y\":3,\"type\":\"visualization\",\"panelIndex\":5},{\"col\":1,\"id\":\"PgSQL-Reads-vs-Writes\",\"row\":8,\"size_x\":6,\"size_y\":3,\"type\":\"visualization\",\"panelIndex\":6},{\"id\":\"Most-frequent-PgSQL-queries\",\"type\":\"visualization\",\"size_x\":6,\"size_y\":6,\"col\":1,\"row\":11,\"panelIndex\":7},{\"id\":\"Slowest-PgSQL-queries\",\"type\":\"visualization\",\"size_x\":6,\"size_y\":6,\"col\":7,\"row\":11,\"panelIndex\":8}]", 
+  "optionsJSON": "{\"darkTheme\":false}", 
+  "version": 1, 
+  "kibanaSavedObjectMeta": {
+    "searchSourceJSON": "{\"filter\":[{\"query\":{\"query_string\":{\"analyze_wildcard\":true,\"query\":\"*\"}}}]}"
+  }
+}

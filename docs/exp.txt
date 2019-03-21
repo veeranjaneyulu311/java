@@ -44,6 +44,12 @@ create admin new user using git bash in centos mechine:
 10.su - username[Test sudo access on new user account]
 11.sudo ls -la /root[only accessible to the root user.]
 
+12.timedatectl set-timezone Asia/Kolkata changing time zone
+
+
+from linux server:
+ssh -p 15951 -i pem-file-name.pem centos@10.0.0.89
+
 dbuser {Dru@999}
 
 
@@ -90,6 +96,15 @@ deleting:
 deleting empty directory------------------------->rmdir directoryName
 deleting non-empty directory--------------------->rm -r directoryName [or] rm -rf directoryName
 deleting a file---------------------------------->rm filename  		  [or] rm -f filename
+ 
+ 
+ mkdir -p /home/user/mysite/{public_html/{css,js,images},logs}
+ ---That will create a folder structure like this one:
+	/home/user/mysite/public_html/css
+	/home/user/mysite/public_html/js
+	/home/user/mysite/public_html/images
+	/home/user/mysite/logs
+
 
 copying directory to remote server:
 ===================================
@@ -103,12 +118,16 @@ scp -P 15951 file.txt veer.n@13.233.123.16:/home/veer.n/       [deploy directory
 
 memory information:
 ==================
-df -h  ------------------------[sytem space]
-du -h  ------------------------[free space]
+df -h  ------------------------[free disk space]
+du -h  ------------------------[used disk space]
 du -h /opt/app/jarbackup-------[size of any directory]
 du -sh  <foldername>
-free -h
+free -h -----------------------[free ram space]
+sudo du -h / | sort -rh | head -10
 
+http://fuzzyblog.io/blog/docker/2017/08/30/running-out-of-disc-space-with-docker.html
+
+timedatectl set-timezone Asia/Kolkata changing time zone
 
 exporting a port in centos:
 ===========================
@@ -231,6 +250,9 @@ $ sudo docker images
 docker build -t reponame:tagname .
 docker run -d -p 8094:8094 --name inventory 69d6afdc52f9
 
+map logs:
+docker run -d -p 8094:8094 -v /logs:/logs inventory
+
 
 run:
 ---
@@ -243,7 +265,7 @@ eureka.instance.preferIpAddress
 status:
 ------
 $ sudo docker ps  [shows you all containers that are currently running]
-$ docker ps -a    [shows list of all containers that we ran]
+$ docker ps -a    [shows list of all containers that we run]
 du -sh  <foldername>
 remove:
 -------
@@ -274,6 +296,12 @@ $ docker run -p 8888:80 image-name
 stop:
 ----
 $ docker stop containerId/name
+
+
+docker information:
+==================
+docker system info
+docker system df
 
 
 sts:
@@ -375,6 +403,8 @@ references:
 websocket:
 https://blog.teamtreehouse.com/an-introduction-to-websockets
 
+https://wsvincent.com/django-user-authentication-tutorial-login-and-logout/
+
 https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-centos-7
 https://docs.docker.com/install/linux/docker-ce/centos/
 security enhancement:
@@ -413,6 +443,7 @@ books download:
 http://it-ebooks.directory/search.html?query=Core+Java%3A+An+Integrated+Approach%2C+New%3A+Includes+All+Versions+upto+Java+8&in=title&page=1
 https://drissamri.be/blog/java/enable-https-in-spring-boot/
 https://www.programiz.com/python-programming/function-argument
+https://www.vultr.com/docs/how-to-install-alfresco-community-edition-on-centos-7
 Updated query with top 10 usage limit per doctor:
 -------------------------------------------------
 select * from (
@@ -447,11 +478,31 @@ Open Proj:
 docker container openproject start
 Firsttime:
 docker run -d -p 7889:80 --name openproject -e SECRET_KEY_BASE=secret -v /var/lib/openproject/pgdata:/var/lib/postgresql/9.6/main -v /var/lib/openproject/logs:/var/log/supervisor -v /var/lib/openproject/static:/var/db/openproject openproject/community:8
+
 sudo firewall-cmd --zone=public --permanent --add-port=7889/tcp
 
 Rocket chat:
 /etc/init.d/rocketchat_all start
 
+
+unmount a device:https://www.webhostinghero.com/blog/how-to-unmount-filesystems-or-partitions-in-centos-linux/
+================
+1.The first step is to find out which disks and volumes are mapped to which directories.
+  #lsblk
+2.in order to unmount a device, you must be “standing outside” its block device descriptor or mount point
+  umount /var/lib/docker
+3.lsblk  
+
+
+mounting hard disk:
+===================
+1.mkfs.xfs /dev/xvdb
+2.mount -t xfs /dev/xvdb /var/lib/dockers
+3.open /etc/fstab
+  add the entry ---------- /dev/xvdb /var/lib/docker xfs defaults 0 0
+
+cyberciti.biz/faq/centos-linux-6-7-changing-timezone-command-line/  
+  
 
 ===============================================================================================================
 
@@ -461,9 +512,321 @@ python -m pip install --upgrade pip
 
 pip install flask flask_restful flask_jsonpify
 
+install activemq:[http://activemq.apache.org/version-5-getting-started.html]
+==============================================================================================================================
+>Download the activemq gzip file to the Unix machine, using either a browser or a tool, i.e., wget, scp, ftp, etc. for example:
+  wget http://archive.apache.org/dist/activemq/5.15.3/apache-activemq-5.15.3-bin.tar.gz
+>Extract the files from the gzip file into a directory of your choice. For example:
+         tar zxvf activemq-x.x.x.tar.gz -C /target/directory
+	i.e: tar zxvf apache-activemq-5.15.3-bin.tar.gz -C /var/activemq/
+	     mv /var/apache-activemq-*/ /var/activemq/
+>If the ActiveMQ start-up script is not executable, change its permissions. The ActiveMQ script is located in the bin directory. For example:
+     cd [activemq_install_dir]/bin
+     chmod 755 activemq	
+>now create activemq.service file[Using Systemd service will ensure that ActiveMQ will start automatically at boot time and failures]
+  vi  /etc/systemd/system/activemq.service 
+  
+  
+>Now populate the activemq.service file with the following content.
+-------------------------------------------
+[Unit]
+Description=ActiveMQ service
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/var/activemq/bin/activemq start
+ExecStop=/var/activemq/bin/activemq stop
+User=root
+Group=root
+Restart=always
+RestartSec=9
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=activemq
+
+[Install]
+WantedBy=multi-user.target
+----------------------------------------------
+>systemctl start activemq
+> To configure ActiveMQ to automatically start at boot time, use.
+  systemctl enable activemq
+>systemctl status activemq 
+
+>Using Admin Web Panel of activemq
+  http://Your_Server_IP:8161/admin
+>If you have firewalld installed, you will have to allow port 8161 through the firewall. Run the following command for same.
+
+   firewall-cmd --zone=public --permanent --add-port=8161/tcp
+   firewall-cmd --reload
+
+   The initial username and password for Apache ActiveMQ are admin and admin. Once you are logged in, you will see the following interface.  
+
+=====================================================end activemq install====================================================== 
+
+https://docs.alfresco.com/community5.1/tasks/simpleinstall-community-lin.html
+
+https://www.howtoforge.com/tutorial/how-to-install-apache-activemq-on-centos-7/
+
+http://docs.alfresco.com/5.2/concepts/prereq-opt-install.html
+
+nginx
+https://www.cyberciti.biz/faq/how-to-install-and-use-nginx-on-centos-7-rhel-7/
+
+python:
+------
+https://code.tutsplus.com/tutorials/file-and-directory-operations-using-python--cms-25817
+https://automatetheboringstuff.com/chapter9/
+
+
+
+http://49.207.6.227:8761/eureka/apps/EMR-SERVICE-VEER/dru.test01:emr-service-veer:8058/status?value=DOWN {unregester from eureka manually}
+
+cloudwatch to elk
+===================
+1.only metrics ---Cloudwatch input plugin   
+https://www.elastic.co/guide/en/logstash/current/plugins-inputs-cloudwatch.html#plugins-inputs-cloudwatch-common-options
+
+2.community-provided plugin --lukewaite/logstash-input-cloudwatch-logs [logstash-input-cloudwatch_logs]
+https://www.rubydoc.info/gems/logstash-input-cloudwatch_logs/0.9.2
+https://github.com/lukewaite/logstash-input-cloudwatch-logs
+https://lukewaite.ca/aws/lambda/elk/logstash/2015/07/13/aws-lambda-and-elk.html
+
+bin/logstash-plugin install logstash-input-cloudwatch
+Install the plugin from rubygems: bin/logstash-plugin install logstash-input-cloudwatch_logs
 
 
 
 
-http://49.207.6.227:8761/eureka/apps/EMR-SERVICE-VEER/dru.test01:emr-service-veer:8058/status?value=DOWN
-unregistoring from eureka manually
+Please add the below bold lines in bootstrap to make new arch jars as container suitable. comment existing preferIpaddress key.
+===============================================================================================================================
+
+eureka:
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://${EUREKA_IP:localhost}:8761/eureka/
+  instance:
+    health-check-url-path: /health
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 30
+    #preferIpAddress: true
+    hostname: ${IP:localhost}
+    ip-address: ${IP:localhost}
+    instance-id: ${eureka.instance.hostname}:${spring.application.name}:${spring.application.instance_id:${server.port}}
+
+
+postgres queries:
+=================
+creating table with hstore column: create table hst(drugs hstore);
+creating table from existing table/view: CREATE TABLE new_table_name AS SELECT * FROM existing_view_name;
+creating new hstore column in existing table: ALTER TABLE existing_table_name ADD COLUMN new_column_name hstore;
+inserting data to hstore column from same table other columns:
+	update table_name set hstore_column_name = hstore(array['drugnm','drugid'], array[drugnm,drugid::text]);
+	(or)
+	update table_name set hstor_column_name = hstore('d', drugnm)||hstore('drugid',drugid::text)
+	NOTE:the column should either text or varchar.if not then cast it to text i.e drugid::text (here drugid is integer)
+
+inserting data to hstore cloumn from already available table: insert into tablename(hstore_column_name) SELECT hstore(t) FROM already_available_table_name AS t;
+ 	
+
+select from jsonb column:
+------------------------
+select * from jsb;(table with hstore column)
+select * from drugs;(relational table)
+select * from drugs  where drugnm ilike '%' AND drugnm NOT LIKE '%+%';(relational table)
+select * from jsb  where drugs->>'drugnm' ilike '%@@t%' AND drugs->>'drugnm' NOT LIKE '%+%';
+
+
+view creation from dev db:
+-------------------------
+-- View: public.drugs_info
+
+-- DROP MATERIALIZED VIEW public.drugs_info;
+
+CREATE MATERIALIZED VIEW public.drugs_info
+TABLESPACE pg_default
+AS
+ SELECT (a.drug_brand_nm::text || '@@'::text) || b.drug_nm::text AS comb_drugnm,
+    (a.drug_brand_id || '-'::text) || a.drug_id AS comb_drugid,
+    a.drug_brand_nm AS brand_name
+   FROM drug_brand_ref a
+     JOIN drug_ref b ON a.drug_id = b.drug_id
+  WHERE a.isactive = true
+WITH DATA;
+
+ALTER TABLE public.drugs_info
+    OWNER TO drucare_appuser;
+
+GRANT INSERT, SELECT, UPDATE, DELETE, TRUNCATE ON TABLE public.drugs_info TO quality_writer;
+GRANT ALL ON TABLE public.drugs_info TO drucare_appuser;
+GRANT SELECT ON TABLE public.drugs_info TO quality_reader;
+
+CREATE INDEX i_drugs_info_brand_name
+    ON public.drugs_info USING btree
+    (brand_name COLLATE pg_catalog."default")
+    TABLESPACE pg_default;
+
+  
+table creation with hstore column and inserting,selecting data from hstore column:
+---------------------------------------------------------------------------------
+1.CREATE drugs_info AS SELECT (a.drug_brand_nm::text || '@@'::text) || b.drug_nm::text AS comb_drugnm,
+    (a.drug_brand_id || '-'::text) || a.drug_id AS comb_drugid,
+    a.drug_brand_nm AS brand_name
+   FROM drug_brand_ref a
+     JOIN drug_ref b ON a.drug_id = b.drug_id
+  WHERE a.isactive = true
+
+  
+2.ALTER TABLE public.drugs_info ADD COLUMN drugs_hstore hstore;
+
+3.update public.drugs_info set drugs_hstore = hstore(array['comb_drugnm','comb_drugid'], array[comb_drugnm,comb_drugid]);  
+
+4.selecting from hstore column:
+	SELECT drugs_hstore->'comb_drugnm' AS sup FROM public.drugs_info WHERE lower(drugs_hstore->'comb_drugnm') LIKE '%@@Pa%';
+	(or)
+	SELECT drugs_hstore->'comb_drugnm' AS sup FROM public.drugs_info WHERE drugs_hstore->'comb_drugnm' ILIKE '%@@Pa%' AND drugs_hstore->'comb_drugnm' NOT ILIKE '%+%'
+
+
+joins:	
+SELECT EMP_ID, NAME, DEPT FROM COMPANY CROSS JOIN DEPARTMENT;
+SELECT table1.column1, table2.column2... FROM table1 INNER JOIN table2 ON table1.common_filed = table2.common_field;
+SELECT ... FROM table1 LEFT OUTER JOIN table2 ON conditional_expression ...
+SELECT ... FROM table1 RIGHT OUTER JOIN table2 ON conditional_expression ...
+SELECT ... FROM table1 FULL OUTER JOIN table2 ON conditional_expression ...
+
+
+postgres references:
+https://www.compose.com/articles/faster-operations-with-the-jsonb-data-type-in-postgresql/
+
+elastic search queries:
+=======================
+for most freuently used drugs:[table name=OPD.PATIENT_PRESCRIPTION_DRUGS_TRANS]
+
+1.creating index for above table
+
+PUT /doctor_prescription_trans
+{
+  "mappings": {
+    "transaction_type": {
+      "properties": {
+        "drug_brand_id": {
+          "type": "integer"
+        },
+        "drug_id": {
+          "type": "integer"
+        },
+        "created_usr_id": {
+          "type": "long",
+        }
+      }
+    }
+  }
+}
+
+2.query to get mostly used drugs based on drug_id
+
+GET doctor_prescription_trans/_search
+{
+    "size" : 300,
+    "query" : {
+        "term" : { "created_usr_id" : 220171221000002 }
+    },
+    
+    "aggs" : {
+        "genres" : {
+            "terms" : { "field" : "drug_id" }
+        }
+    }
+}
+
+or
+note:it only gives
+GET doctor_prescription_trans/_search?filter_path=aggregations.genres.buckets
+{
+    "size" :0,
+    "query" : {
+        "term" : { "created_usr_id" : 220171221000002 }
+    },
+    
+    "aggs" : {
+        "genres" : {
+            "terms" : { "field" : "drug_id" }
+        }
+    }
+}
+
+3.query to get drugs information matching list of drugid's:
+
+
+
+S-hared:
+=========
+https://docs.spring.io/autorepo/docs/spring-framework/5.0.0.M1/spring-framework-reference/pdf/spring-framework-reference.pdf
+
+anydesk:
+==========
+NAKKA VEERANJANEYULUs
+837 118 649
+
+
+increasing ram in vm's:
+=======================
+1.open Xen-server
+2.click on vm (ex:elk.dru.care)
+3.click on memory tab in right side console
+4.click on edit options
+5.enter total required ram size (ex:6)
+
+Git:[WD-->SA-->LR-->RR]
+===
+git config --list
+git config --global user.name="veer"
+git config user.name="veer"
+
+git init
+git remote add origin repo-url
+
+git add <filename>                 [add file to staging area]    
+git reset HEAD <filename>		   [removing file from staging area]
+git checkout -- <file>             [to discard changes in working directory]
+
+git remote -v                      [You can verify if a local repository is tracking the remote repository using ]
+
+
+
+SELECT org_id, org_type_id, org_nm, contact_nm, contact_no, email_id, fax_no, tan_no, hos_bed_type_id, country_nm, state_nm, district_nm, mandal_nm, village_nm, locality_nm, address_line1, longitude, latitude, dm_hm_no, vat_no, service_tax_no, mci_no, rohini_no, register_no, registration_verfied, isactive, created_usr_id, created_dttm, org_short_nm, contact_no1, contact_no2, website_address, profile_nm, emergency_contact_no, address_line2, pincode, org_grp_id, is_head_office, city_nm, is_fullday, zoho_ref_id, gst_number, is_lab_accredited, accreditation_body, accreditation_body_url, accreditation_ref_no, accreditation_standard, confidence_level_percntg, is_account_activated, no_of_beds, tele_health_id, pharmacy_branch_type, ip_address, storage_total_size, storage_used_qty, archive_usage, processing_space, archive_total_size
+	FROM public.organisation_ref where org_nm ilike 'Health%'
+	
+	
+shared-s:
+==========
+https://javaconceptoftheday.com/java-interview-programs-with-solutions/
+https://stackoverflow.com/questions/35324974/query-eureka-without-registering-as-a-service
+https://www.vogella.com/tutorials/JUnit/article.html
+https://www.tutorialspoint.com/junit/
+https://docs.spring.io/autorepo/docs/spring-framework/5.0.0.M1/spring-framework-reference/pdf/spring-framework-reference.pdf
+http://it-ebooks.directory/search.html?query=Core+Java%3A+An+Integrated+Approach%2C+New%3A+Includes+All+Versions+upto+Java+8&in=title&page=1
+
+https://download.cnet.com/Citrix-XenServer/3000-2651_4-75183818.html
+
+
+
+
+
+
+
+.
+├── alfresco.log
+├── bin
+│   ├── bootstrap.jar
+│   ├── catalina-tasks.xml
+│   └── tomcat-juli.jar
+├── conf -> /etc/tomcat
+├── lib -> /usr/share/java/tomcat
+├── logs -> /var/log/tomcat
+├── share.log
+├── temp -> /var/cache/tomcat/temp
+├── webapps -> /var/lib/tomcat/webapps
+└── work -> /var/cache/tomcat/work
