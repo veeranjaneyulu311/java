@@ -801,7 +801,8 @@ SELECT org_id, org_type_id, org_nm, contact_nm, contact_no, email_id, fax_no, ta
 	
 	
 shared-s:
-==========
+=========
+
 https://javaconceptoftheday.com/java-interview-programs-with-solutions/
 https://stackoverflow.com/questions/35324974/query-eureka-without-registering-as-a-service
 https://www.vogella.com/tutorials/JUnit/article.html
@@ -812,7 +813,7 @@ http://it-ebooks.directory/search.html?query=Core+Java%3A+An+Integrated+Approach
 https://download.cnet.com/Citrix-XenServer/3000-2651_4-75183818.html
 
 
-
+http://docs.alfresco.com/community/concepts/alfresco-tutorial-02.html
 
 
 
@@ -830,3 +831,10 @@ https://download.cnet.com/Citrix-XenServer/3000-2651_4-75183818.html
 ├── temp -> /var/cache/tomcat/temp
 ├── webapps -> /var/lib/tomcat/webapps
 └── work -> /var/cache/tomcat/work
+
+
+
+
+RUN apk add tzdata
+RUN cp /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
+RUN echo "Asia/Kolkata" > /etc/timezone
