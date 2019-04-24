@@ -474,15 +474,26 @@ cd /opt/xe..
 .ctls script start
 
 Open Proj:
-
+----------
 docker container openproject start
 Firsttime:
 docker run -d -p 7889:80 --name openproject -e SECRET_KEY_BASE=secret -v /var/lib/openproject/pgdata:/var/lib/postgresql/9.6/main -v /var/lib/openproject/logs:/var/log/supervisor -v /var/lib/openproject/static:/var/db/openproject openproject/community:8
 
 sudo firewall-cmd --zone=public --permanent --add-port=7889/tcp
 
+Remember from open project if mails cant be send, there seems a internet issue in the server. To restore internet connectivity, do the below things.
+$ source /root/.bash_profile
+$caa -d
+Do these things a root user. Check if internet connectivity works.
+
 Rocket chat:
 /etc/init.d/rocketchat_all start
+
+
+community.openproject.com/projects/docker/work_packages/24378/activity
+
+Use the command docker exec -it <container name> /bin/bash to get a bash shell in the container
+Generically, use docker exec -it <container name> <command> to execute whatever command you specify in the container.
 
 
 unmount a device:https://www.webhostinghero.com/blog/how-to-unmount-filesystems-or-partitions-in-centos-linux/
@@ -802,35 +813,33 @@ SELECT org_id, org_type_id, org_nm, contact_nm, contact_no, email_id, fax_no, ta
 	
 shared-s:
 =========
+git:
+----
+git checkout seotweaks
+git merge -s ours master
+git checkout master
+git merge seotweaks
 
+
+
+https://docs.spring.io/autorepo/docs/spring-framework/5.0.0.M1/spring-framework-reference/pdf/spring-framework-reference.pdf
 https://javaconceptoftheday.com/java-interview-programs-with-solutions/
 https://stackoverflow.com/questions/35324974/query-eureka-without-registering-as-a-service
 https://www.vogella.com/tutorials/JUnit/article.html
 https://www.tutorialspoint.com/junit/
 https://docs.spring.io/autorepo/docs/spring-framework/5.0.0.M1/spring-framework-reference/pdf/spring-framework-reference.pdf
 http://it-ebooks.directory/search.html?query=Core+Java%3A+An+Integrated+Approach%2C+New%3A+Includes+All+Versions+upto+Java+8&in=title&page=1
-
+https://softwareengineering.stackexchange.com/questions/14335/biggest-mistake-youve-ever-made
 https://download.cnet.com/Citrix-XenServer/3000-2651_4-75183818.html
 
 
 http://docs.alfresco.com/community/concepts/alfresco-tutorial-02.html
 
+shared-v:
+https://realpython.com/
 
 
 
-.
-├── alfresco.log
-├── bin
-│   ├── bootstrap.jar
-│   ├── catalina-tasks.xml
-│   └── tomcat-juli.jar
-├── conf -> /etc/tomcat
-├── lib -> /usr/share/java/tomcat
-├── logs -> /var/log/tomcat
-├── share.log
-├── temp -> /var/cache/tomcat/temp
-├── webapps -> /var/lib/tomcat/webapps
-└── work -> /var/cache/tomcat/work
 
 
 
