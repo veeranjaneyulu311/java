@@ -1,0 +1,625 @@
+package com.drucare.elasticsearch.dao;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.util.EntityUtils;
+import org.elasticsearch.client.Request;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+import com.drucare.elasticsearch.beans.DoctorFavouriteDrugsSearchBean;
+import com.drucare.elasticsearch.beans.DoctorPrescriptionTransIndexBean;
+import com.drucare.elasticsearch.beans.DrugBrand;
+import com.drucare.elasticsearch.beans.DrugSearchBean;
+import com.drucare.elasticsearch.beans.DrugsFoundResponseBean;
+import com.drucare.elasticsearch.beans.DrugsIndexBean;
+import com.drucare.elasticsearch.beans.Favourites;
+import com.drucare.elasticsearch.beans.FavouritesIndexBean;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+@Repository
+public class ElasticsearchDaoImpl implements ElasticsearchDao {
+
+	@Autowired
+	RestClient restClient;
+
+	@Autowired
+	NamedParameterJdbcTemplate namedParameterjdbcTemplate;
+
+	// This Method executes passed query in elastic search for drug details
+	private void elasticSearchRequestForDrugs(String elasticSearchQuery, List<DrugsFoundResponseBean> drugList)
+			throws IOException, ParseException {
+
+		/*
+		 * Request URL:"GET index_name/index_type/_search"
+		 */
+
+		Request request = new Request("GET", "drugs_info/drugs_type/_search?filter_path=hits.hits._source");
+
+		request.setJsonEntity(elasticSearchQuery);
+
+		Response response = restClient.performRequest(request);
+
+		HttpEntity entity = response.getEntity();
+
+		if (entity != null) {
+
+			String jsonString = EntityUtils.toString(entity);
+
+			JSONParser parser = new JSONParser();
+
+			JSONObject jsonObject = (JSONObject) parser.parse(jsonString);
+
+			JSONArray jsonArray = (JSONArray) ((JSONObject) jsonObject.get("hits")).get("hits");
+
+			for (Object object : jsonArray) {
+				parseJsonObject((JSONObject) object, drugList);
+			}
+
+		}
+
+	}
+
+	// this method converts elastic search response from JSON to java object
+	private void parseJsonObject(JSONObject drugJsonObject, List<DrugsFoundResponseBean> drugList) {
+
+		JSONObject drugObject = (JSONObject) drugJsonObject.get("_source");
+
+		String combDrugnm = (String) drugObject.get("comb_drugnm");
+		long drugId = (Long) drugObject.get("drug_id");
+		long brandId = (Long) drugObject.get("drug_brand_id");
+
+		DrugsFoundResponseBean drugInfo = new DrugsFoundResponseBean();
+
+		drugInfo.setBrandName(combDrugnm.split("@@")[0]);
+		drugInfo.setDrugName(combDrugnm.split("@@")[1]);
+		drugInfo.setDrugId(drugId);
+		drugInfo.setBrandId(brandId);
+
+		drugList.add(drugInfo);
+	}
+
+	// This method builds and returns the query for fetching the drug details based
+	// on individual drug name or brand name or combinational drug name
+	private String getSearchQueryForDrugsInfo(DrugSearchBean drugSearchBean) {
+
+		StringBuilder elasticsearchQuery = new StringBuilder();
+
+		/*
+		 * SIZE=1000 : It indicates number of documents to be returned from total
+		 * matched documents in elastic search. comb_drugnm : The field to be considered
+		 * for query and sorting in elastic search
+		 */
+		elasticsearchQuery.append("{ \"size\":1000,\"query\": { \"regexp\":{ \"comb_drugnm\": \"");
+
+		if (drugSearchBean.getSelectCriteria().isEmpty()) {
+			elasticsearchQuery.append(".*\\\\@\\\\@.*" + drugSearchBean.getDrugName() + ".*");
+		} else if (drugSearchBean.getSelectCriteria().equalsIgnoreCase("0")) {
+			elasticsearchQuery.append(drugSearchBean.getDrugName() + ".*\\\\@\\\\@.*");
+		} else if (drugSearchBean.getSelectCriteria().equalsIgnoreCase("1")) {
+			elasticsearchQuery.append(".*\\\\@\\\\@" + drugSearchBean.getDrugName() + ".*&~(.*\\\\+.*)");
+		}
+
+		elasticsearchQuery.append("\" } }, \"sort\" : [ { \"comb_drugnm\" : {\"order\" : \"asc\"}} ] } ");
+
+		return elasticsearchQuery.toString();
+
+	}
+
+	// This method returns drug details based on individual drug name or brand name
+	// or combinational drug name
+	@Override
+	public List<DrugsFoundResponseBean> fetchDrugsInfo(DrugSearchBean drugSearchBean)
+			throws IOException, ParseException {
+
+		List<DrugsFoundResponseBean> drugList = new ArrayList<>();
+
+		// build query body
+		String elasticSearchQuery = getSearchQueryForDrugsInfo(drugSearchBean);
+
+		// execute query
+		elasticSearchRequestForDrugs(elasticSearchQuery, drugList);
+
+		return drugList;
+
+	}
+
+	// getting favourites========================================================
+
+	private String getSearchQueryForMostUsedDrugs(DoctorFavouriteDrugsSearchBean doctorFavouriteDrugsSearchBean) {
+
+		StringBuilder elasticsearchQuery = new StringBuilder();
+
+		elasticsearchQuery.append("{ \"size\" :0, \"query\" : { \"term\" : { \"created_usr_id\" :");
+
+		elasticsearchQuery.append(doctorFavouriteDrugsSearchBean.getCreatedUserId());
+
+		elasticsearchQuery.append(" } }, \"aggs\" : { \"genres\" : { \"terms\" : { \"field\" : \"drug_id\" } } } }");
+
+		return elasticsearchQuery.toString();
+
+	}
+
+	private String getSearchQueryForDrugsInfo(String mostUsedDrugs) {
+
+		StringBuilder elasticsearchQuery = new StringBuilder();
+
+		elasticsearchQuery
+				.append("{\"size\" :300,\"query\" : {\"constant_score\" : {\"filter\" : {\"terms\" : {\"drug_id\" :");
+
+		elasticsearchQuery.append(mostUsedDrugs);
+
+		elasticsearchQuery.append("}}}}}");
+
+		return elasticsearchQuery.toString();
+
+	}
+
+	private void parseJsonObjectForMostUsedDrugs(JSONObject drug, List<String> drugId) {
+
+		// JSONObject drugObject = (JSONObject) drug.get("buckets");
+
+		String drugList = drug.get("key").toString();
+
+		drugId.add(drugList);
+	}
+
+	@Override
+	public List<DrugsFoundResponseBean> fetchDoctorFavDrugsInfo(
+			DoctorFavouriteDrugsSearchBean doctorFavouriteDrugsSearchBean) throws ParseException, IOException {
+
+		List<DrugsFoundResponseBean> drugList = new ArrayList<>();
+
+		List<String> drugId = new ArrayList<>();
+
+		Request request = new Request("GET",
+				"doctor_prescription_trans/_search?filter_path=aggregations.genres.buckets.key");
+
+		String elasticSearchQuery = getSearchQueryForMostUsedDrugs(doctorFavouriteDrugsSearchBean);
+
+		request.setJsonEntity(elasticSearchQuery);
+
+		// exception
+		Response response = restClient.performRequest(request);
+
+		HttpEntity entity = response.getEntity();
+
+		if (entity != null) {
+
+			String jsonString = EntityUtils.toString(entity);
+
+			JSONParser parser = new JSONParser();
+
+			JSONObject jsonObject = (JSONObject) parser.parse(jsonString);
+
+			JSONArray jsonArray = (JSONArray) ((JSONObject) ((JSONObject) jsonObject.get("aggregations")).get("genres"))
+					.get("buckets");
+
+			for (Object object : jsonArray) {
+				parseJsonObjectForMostUsedDrugs((JSONObject) object, drugId);
+			}
+
+		}
+		String mostUsedDrugs = drugId.toString();
+		System.out.println(mostUsedDrugs);
+		elasticSearchQuery = getSearchQueryForDrugsInfo(mostUsedDrugs);
+
+		elasticSearchRequestForDrugs(elasticSearchQuery, drugList);
+
+		return drugList;
+	}
+
+	private String getSearchQueryForFavouritesInfo(Favourites fav) {
+
+		StringBuilder elasticsearchQuery = new StringBuilder();
+
+		elasticsearchQuery.append("{ \"query\": { \"bool\" : { \"must\" : { \"term\" : { \"created_usr_id\" :");
+
+		elasticsearchQuery.append(fav.getCreated_usr_id());
+
+		elasticsearchQuery.append("} }, \"filter\": { \"regexp\":{ \"drug_nm\": \"");
+
+		elasticsearchQuery.append(fav.getPattern());
+
+		elasticsearchQuery.append("\" } } } } }");
+
+		return elasticsearchQuery.toString();
+
+	}
+
+	private void parseJsonObjectFav(JSONObject drugJsonObject, List<DrugsFoundResponseBean> drugList) {
+
+		JSONObject drugObject = (JSONObject) drugJsonObject.get("_source");
+
+		String drugNm = (String) drugObject.get("drug_nm");
+		String brandNm = (String) drugObject.get("drug_brand_nm");
+		long drugId = (Long) drugObject.get("drug_id");
+		long brandId = (Long) drugObject.get("drug_brand_id");
+
+		DrugsFoundResponseBean drugInfo = new DrugsFoundResponseBean();
+
+		drugInfo.setBrandName(brandNm);
+		drugInfo.setDrugName(drugNm);
+		drugInfo.setDrugId(drugId);
+		drugInfo.setBrandId(brandId);
+
+		drugList.add(drugInfo);
+	}
+
+	@Override
+	public List<DrugsFoundResponseBean> fetchFavouritesInfo(Favourites fav) throws IOException, ParseException {
+
+		List<DrugsFoundResponseBean> drugList = new ArrayList<>();
+
+		// build query body
+		String elasticSearchQuery = getSearchQueryForFavouritesInfo(fav);
+
+		Request request = new Request("GET", "/favourites_info/favourites_type/_search?filter_path=hits.hits._source");
+
+		request.setJsonEntity(elasticSearchQuery);
+
+		Response response = restClient.performRequest(request);
+
+		HttpEntity entity = response.getEntity();
+
+		if (entity != null) {
+
+			String jsonString = EntityUtils.toString(entity);
+
+			JSONParser parser = new JSONParser();
+
+			JSONObject jsonObject = (JSONObject) parser.parse(jsonString);
+
+			JSONArray jsonArray = (JSONArray) ((JSONObject) jsonObject.get("hits")).get("hits");
+
+			for (Object object : jsonArray) {
+				parseJsonObjectFav((JSONObject) object, drugList);
+			}
+
+		}
+
+		return drugList;
+
+	}
+
+	// =========================================index=======================================
+
+	// create the index if not exists
+	private void createIndex(String indexSettings, String indexName) throws IOException {
+
+		Request request = new Request("PUT", indexName);
+
+		request.setJsonEntity(indexSettings);
+
+		restClient.performRequest(request);
+
+	}
+
+	// index the data that is fetched from transaction database into elastic search
+	private void indexData(String endpoint, String data) throws IOException {
+
+		Request request = new Request("POST", endpoint);
+
+		request.setJsonEntity(data);
+
+		restClient.performRequest(request);
+
+	}
+
+	// check weather index exists
+	private boolean isIndexExists(String indexName) throws IOException {
+		Request request = new Request("HEAD", indexName);
+
+		Response response = restClient.performRequest(request);
+
+		return response.getStatusLine().getStatusCode() != 200;
+	}
+
+	// This method gets data from transaction database
+	private List<DoctorPrescriptionTransIndexBean> fetchDoctorPrescriptionTrans() {
+		String query = "SELECT DRUG_BRAND_ID,DRUG_ID,CREATED_USR_ID  FROM OPD.PATIENT_PRESCRIPTION_DRUGS_TRANS ORDER BY CREATED_DTTM";
+
+		return namedParameterjdbcTemplate.query(query, new RowMapper<DoctorPrescriptionTransIndexBean>() {
+
+			@Override
+			public DoctorPrescriptionTransIndexBean mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return new DoctorPrescriptionTransIndexBean(rs.getBigDecimal("DRUG_BRAND_ID").intValue(),
+						rs.getBigDecimal("DRUG_ID").intValue(), rs.getBigDecimal("CREATED_USR_ID").longValue());
+			}
+		});
+	}
+
+	@Override
+	public void indexDoctorPrescriptionTransInfo() throws IOException {
+
+		String endpoint = "/doctor_prescription_trans/transaction_type/_bulk";
+		int id = 1;
+
+		List<DoctorPrescriptionTransIndexBean> doctorPrescriptionTrans = fetchDoctorPrescriptionTrans();
+
+		StringBuilder data = new StringBuilder();
+
+		// java object to json conversion jakson
+		ObjectMapper mapper = new ObjectMapper();
+
+		for (DoctorPrescriptionTransIndexBean doctorTransaction : doctorPrescriptionTrans) {
+			data.append("{ \"index\" : {\"_id\" : \"" + id + "\"}}\n");
+			data.append(mapper.writeValueAsString(doctorTransaction));
+			data.append("\n");
+			id++;
+		}
+
+		if (isIndexExists("doctor_prescription_trans")) {
+
+			String indexSettings = "{\"mappings\":{\"transaction_type\":{\"properties\":{\"drug_brand_id\":{\"type\":\"integer\"},\"drug_id\":{\"type\":\"integer\"},\"created_usr_id\":{\"type\":\"long\"}}}}}";
+
+			String indexName = "/doctor_prescription_trans";
+
+			createIndex(indexSettings, indexName);
+		}
+
+		indexData(endpoint, data.toString());
+	}
+
+	public List<DrugsIndexBean> fetchDrugs() {
+
+		String query = "SELECT COMB_DRUGID,COMB_DRUGNM FROM  PUBLIC.DRUGS_INFO";
+
+		return namedParameterjdbcTemplate.query(query, new RowMapper<DrugsIndexBean>() {
+
+			@Override
+			public DrugsIndexBean mapRow(ResultSet rs, int rowNum) throws SQLException {
+
+				String comb_drugid = rs.getString("COMB_DRUGID");
+				return new DrugsIndexBean(rs.getString("COMB_DRUGNM"), Integer.parseInt(comb_drugid.split("-")[1]),
+						Integer.parseInt(comb_drugid.split("-")[0]));
+			}
+		});
+
+	}
+
+	@Override
+	public void indexDrugsInfo() throws IOException {
+		String endpoint = "/drugs_info/drugs_type/_bulk";
+		int id = 1;
+		List<DrugsIndexBean> drugsInfo = fetchDrugs();
+
+		StringBuilder data = new StringBuilder();
+
+		// java object to json conversion jakson
+		ObjectMapper mapper = new ObjectMapper();
+
+		for (DrugsIndexBean drug : drugsInfo) {
+			data.append("{ \"index\" : {\"_id\" : \"" + id + "\"}}\n");
+			data.append(mapper.writeValueAsString(drug));
+			data.append("\n");
+			id++;
+		}
+
+		if (isIndexExists("drugs_info")) {
+
+			String indexSettings = "{ \"settings\": { \"analysis\": { \"normalizer\": { \"drugs_keyword_normalizer\": { \"type\": \"custom\", \"filter\": [ \"lowercase\" ] } } } }, \"mappings\": { \"drugs_type\": { \"properties\": { \"comb_drugnm\": { \"type\": \"keyword\",\"normalizer\": \"drugs_keyword_normalizer\" },\"drug_id\":{\"type\":\"integer\"},\"drug_brand_id\":{\"type\":\"integer\" } } } } } ";
+
+			String indexName = "/drugs_info";
+
+			createIndex(indexSettings, indexName);
+		}
+
+		indexData(endpoint, data.toString());
+
+	}
+
+	public List<FavouritesIndexBean> fetchFavourites() {
+
+		String query = "SELECT DRUG_BRAND_ID, DRUG_BRAND_NM, DRUG_ID, DRUG_NM, CREATED_USR_ID FROM OPD.DOCTOR_FAVORITE_PROTOCOL_TRANS ORDER BY CREATED_DTTM";
+
+		return namedParameterjdbcTemplate.query(query, new RowMapper<FavouritesIndexBean>() {
+
+			@Override
+			public FavouritesIndexBean mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return new FavouritesIndexBean(rs.getInt("DRUG_BRAND_ID"), rs.getString("DRUG_BRAND_NM"),
+						rs.getInt("DRUG_ID"), rs.getString("DRUG_NM"), rs.getBigDecimal("CREATED_USR_ID").longValue());
+			}
+		});
+
+	}
+
+	@Override
+	public void indexDoctorFavouritesInfo() throws IOException {
+		String endpoint = "/favourites_info/favourites_type/_bulk";
+		int id = 1;
+		List<FavouritesIndexBean> favouritesInfo = fetchFavourites();
+
+		StringBuilder data = new StringBuilder();
+
+		// java object to json conversion jakson
+		ObjectMapper mapper = new ObjectMapper();
+
+		for (FavouritesIndexBean favourite : favouritesInfo) {
+			data.append("{ \"index\" : {\"_id\" : \"" + id + "\"}}\n");
+			data.append(mapper.writeValueAsString(favourite));
+			data.append("\n");
+			id++;
+		}
+
+		if (isIndexExists("favourites_info")) {
+
+			String indexSettings = "{ \"settings\": { \"analysis\": { \"normalizer\": { \"drugs_keyword_normalizer\": { \"type\": \"custom\", \"filter\": [ \"lowercase\" ] } } } }, \"mappings\": { \"favourites_type\": { \"properties\": { \"drug_nm\": { \"type\": \"keyword\",\"normalizer\": \"drugs_keyword_normalizer\" },\"drug_brand_nm\": { \"type\": \"keyword\",\"normalizer\": \"drugs_keyword_normalizer\" },\"drug_id\":{\"type\":\"integer\"},\"drug_brand_id\":{\"type\":\"integer\"},\"created_usr_id\":{\"type\":\"long\"} } } } } ";
+
+			String indexName = "/favourites_info";
+
+			createIndex(indexSettings, indexName);
+		}
+
+		indexData(endpoint, data.toString());
+
+	}
+
+	// insert data from one db to another
+
+	@Override
+	public void getData() throws SQLException {
+
+	    getDrugBrandsTableData();
+
+		//getDrugTableData();
+
+	}
+
+	public void getDrugBrandsTableData() throws SQLException {
+		String query = "SELECT drug_brand_id, drug_type_id, drug_id, dose_id, drug_brand_nm, dose_nm, drug_type_nm from drug_brand_ref";
+
+		/*
+		 * List<DrugBrand> drugBrandList = namedParameterjdbcTemplate.query(query, new
+		 * RowMapper<DrugBrand>() {
+		 * 
+		 * @Override public DrugBrand mapRow(ResultSet rs, int rowNum) throws
+		 * SQLException {
+		 * 
+		 * return new DrugBrand(rs.getInt("drug_brand_id"), rs.getInt("drug_type_id"),
+		 * rs.getInt("drug_id"), rs.getInt("dose_id"), rs.getString("drug_brand_nm"),
+		 * rs.getString("dose_nm"), rs.getString("drug_type_nm")); } });
+		 */
+		
+		//using lambda
+		List<DrugBrand> drugBrandList = namedParameterjdbcTemplate.query(query,(rs, rowNum) -> new DrugBrand(rs.getInt("drug_brand_id"), rs.getInt("drug_type_id"),
+						rs.getInt("drug_id"), rs.getInt("dose_id"), rs.getString("drug_brand_nm"),
+						rs.getString("dose_nm"), rs.getString("drug_type_nm")));
+
+		copyDrugBrandsTableData(drugBrandList);
+
+	}
+
+	public void copyDrugBrandsTableData(List<DrugBrand> drugBrandList) throws SQLException {
+
+		Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "admin");
+
+		String query = "INSERT INTO drug_brand_ref(drug_brand_id, drug_type_id, drug_id, dose_id, drug_brand_nm, dose_nm, drug_type_nm) VALUES(?,?,?,?,?,?,?)";
+
+		PreparedStatement statement = con.prepareStatement(query);
+
+		int count = 0;
+		for (DrugBrand brand : drugBrandList) {
+			statement.setInt(1, brand.getDrug_brand_id());
+			statement.setInt(2, brand.getDrug_type_id());
+			statement.setInt(3, brand.getDrug_id());
+			statement.setInt(4, brand.getDose_id());
+			statement.setString(5, brand.getDrug_brand_nm());
+			statement.setString(6, brand.getDose_nm());
+			statement.setString(7, brand.getDrug_type_nm());
+
+			statement.addBatch();
+			count++;
+			// execute every 100 rows or less
+			if (count % 100 == 0 || count == drugBrandList.size()) {
+				statement.executeBatch();
+			}
+		}
+
+	}
+
+	public void getDrugTableData() throws SQLException {
+		String query = "SELECT drug_id, drug_nm FROM drug_ref";
+
+		/*
+		 * List<DrugBrand> drugBrandList = namedParameterjdbcTemplate.query(query, new
+		 * RowMapper<DrugBrand>() {
+		 * 
+		 * @Override public DrugBrand mapRow(ResultSet rs, int rowNum) throws
+		 * SQLException {
+		 * 
+		 * return new DrugBrand(rs.getInt("drug_id"),rs.getString("drug_nm")); } });
+		 */
+		
+		//using lambda
+		List<DrugBrand> drugBrandList = namedParameterjdbcTemplate.query(query,
+				(rs, rowNum) -> new DrugBrand(rs.getInt("drug_id"), rs.getString("drug_nm")));
+
+		copyDrugTableData(drugBrandList);
+
+	}
+
+	public void copyDrugTableData(List<DrugBrand> drugBrandList) throws SQLException {
+
+		Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "admin");
+
+		String query = "INSERT INTO drug_ref(drug_id, drug_nm) VALUES(?,?)";
+
+		PreparedStatement statement = con.prepareStatement(query);
+
+		int count = 0;
+		for (DrugBrand brand : drugBrandList) {
+			statement.setInt(1, brand.getDrug_id());
+			statement.setString(2, brand.getDrug_nm());
+
+			statement.addBatch();
+			count++;
+			// execute every 100 rows or less
+			if (count % 100 == 0 || count == drugBrandList.size()) {
+				statement.executeBatch();
+			}
+		}
+
+	}
+    
+	public void getDrugTableDataSqlite() throws SQLException {
+		String query = "SELECT drug_id, drug_nm FROM drug_ref";
+
+		/*
+		 * List<DrugBrand> drugBrandList = namedParameterjdbcTemplate.query(query, new
+		 * RowMapper<DrugBrand>() {
+		 * 
+		 * @Override public DrugBrand mapRow(ResultSet rs, int rowNum) throws
+		 * SQLException {
+		 * 
+		 * return new DrugBrand(rs.getInt("drug_id"),rs.getString("drug_nm")); } });
+		 */
+		
+		//using lambda
+		List<DrugBrand> drugBrandList = namedParameterjdbcTemplate.query(query,
+				(rs, rowNum) -> new DrugBrand(rs.getInt("drug_id"), rs.getString("drug_nm")));
+
+		copyDrugTableDataSqlite(drugBrandList);
+
+	}
+
+	public void copyDrugTableDataSqlite(List<DrugBrand> drugBrandList) throws SQLException {
+
+		Connection con = DriverManager.getConnection("jdbc:sqlite:E:/sqlite/drug.db");
+
+		String query = "INSERT INTO drug_ref(drug_id, drug_nm) VALUES(?,?)";
+
+		PreparedStatement statement = con.prepareStatement(query);
+
+		int count = 0;
+		for (DrugBrand brand : drugBrandList) {
+			statement.setInt(1, brand.getDrug_id());
+			statement.setString(2, brand.getDrug_nm());
+
+			statement.addBatch();
+			count++;
+			// execute every 100 rows or less
+			if (count % 100 == 0 || count == drugBrandList.size()) {
+				statement.executeBatch();
+			}
+		}
+
+	}
+
+}
