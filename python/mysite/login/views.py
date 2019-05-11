@@ -6,6 +6,7 @@ from .models import User
 # Create your views here.
 
 def homePage(request):
+	print(list(request))
 	template = loader.get_template('login/home.html')
 	context = {}
 	return HttpResponse(template.render(context,request))
@@ -23,8 +24,8 @@ def uservalidation(request):
 	if name in nameList:
 		us=User.objects.get(user_name=name)
 		if us.pwd==pwd :
-			return HttpResponse("welcome Mr."+name)
+			return HttpResponse("<h2 style='color:green'>welcome Mr."+name+"</h2><br><b><a href='/login'>Login</a></b>")
 		else:
-			return HttpResponse("enter valid password")
+			return HttpResponse("<h2 style='color:red'>enter valid password Mr."+name+"</h2><br><b><a href='/login'>Login</a></b>")
 	else:
-		return HttpResponse("enter valid username")
+		return HttpResponse("<h2 style='color:red'>enter valid username</h2><br><b><a href='/login'>Login</a></b>")

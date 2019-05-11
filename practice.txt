@@ -1,0 +1,484 @@
+UserId: veeranjaneyulu.n-at-528913883676
+Pasw : HD1gaGj52/HoBy3X+00fofA+B6VGgBjo2UbT7djZGFU=
+
+"accessKeyId":"ASIAWHHNLI2UDBXZMUUA"
+
+python-repo:
+------------
+https://git-codecommit.ap-south-1.amazonaws.com/v1/repos/dru-app-mis_python
+
+postgres::::::    C:\Program Files (x86)\PostgreSQL\10\data
+
+rocketchat:::::::::::rs4-iuh-r83
+
+EmployeeID (DRUHYD01067)mp6z
+
+
+payslip:
+-------
+http://drucare.evaluecurve.com/General/CheckLogin[DRUHYD01067]AXJPN1273C
+
+DRUHYD01066
+
+
+swagger: http://192.168.1.101:8049/reports/swagger-ui.html#!/mis45controller/fetchOrgWiseOPDCollectionsUsingPOST
+conf:    49.207.6.227:8888/dev/ipd-application-dev.properties
+
+
+
+angular-6:
+
+node --max_old_space_size=8192 node_modules/@angular/cli/bin/ng build -c development --aot --base-href ./
+------
+node --max_old_space_size=8192 node_modules/@angular/cli/bin/ng build -c development  {jenkins}
+unzip dist.zip
+zip -r dist.zip dist
+------
+ng build -c development --aot --base-href ./
+
+
+
+
+
+
+http://192.168.1.1:8090[internet access]-----------[veeru_n]-------------[v]
+https://mail.dru.care/[zimbra]---------------------[veeranjaneyulu]------[a]
+aws console login[drucare-in-qa]-------------------[veeranjaneyulu.n]----[d]
+aws console login[drucare]-------------------------[veeranjaneyulu.n]----[v]
+18.208.105.25:15951[qa]----------------------------[drucareqa]-----------[d]----[/home/drucareqa/deploy(jenkins)]--[/opt/app]
+192.168.1.101:2233[dev]----------------------------[alphadev]------------[d]
+13.232.239.2:8080[jenkins]-------------------------[devops]--------------[d]
+
+http://192.168.1.109:5601/app/kibana#/home?_g=()
+49.207.6.227:5601[apm-kibana]
+49.207.6.227:8080[dev website]
+https://appqa.nv01.dru.care/#/dru/home[qa website]
+18.211.1.121:8761[spring eureka]
+192.168.1.109:9300 [elastic search for java client]
+192.168.1.109:9200 [elastic search for http client]
+-Dspring.datasource.url=jdbc:postgresql://$DB_IP:$DB_PORT/drucare_dev[192.168.1.111/5432]
+
+Wi-Fi>>Druc@re99
+Dru@143$care
+
+forever start which verdaccio
+
+templates 
+from dev---/opt/app/templates
+to archserver---/opt/app/templates
+        
+bation:::18.208.105.25
+1a:::10.0.0.82
+1b:::10.0.1.140
+1c:::10.0.2.120
+
+https://docs.djangoproject.com/en/1.11/intro/tutorial01/
+
+
+https://git-codecommit.ap-south-1.amazonaws.com/v1/repos/dru-app-core-prod-config
+
+Dru@Dev@123%%
+
+ui release:
+===========
+https://stackoverflow.com/questions/50907736/refreshing-the-page-results-in-404-error-angular-6
+DEV:
+===
+Dru@Dev@123%%
+/var/lib/tomcat/webapps/app------------------------[1.6],
+/var/lib/tomcat/webapps/ROOT-----------------------[website],
+/var/lib/tomcat/webapps/new------------------------[6]
+
+7070:
+====
+/opt/app/ui/commonreg/app
+/opt/app/ui/commonreg/new
+/opt/app/ui/commonreg/ROOT
+
+warehouse:
+==========
+/opt/app/ui/warehouse/ROOT/
+/opt/app/ui/warehouse/app/
+/opt/app/ui/warehouse/new/
+
+
+QA:
+==
+/opt/app/ui/new-------------------------Angular6
+/opt/app/ui/app-----------1.6
+/opt/app/ui/ROOT----------website
+
+Bation@Qa@1234%
+Dru@User@123%
+3025897539
+[0 0 1 * * /usr/bin/python /home/drucareqa/logszip/logszipping.py]
+[0 0 1 * * /usr/bin/python /home/drucaredev/logszipping.py]
+nohup java  -jar Zuul-EdgeServer-0.0.1.jar   /tmp 2>> /dev/null >> /dev/null &
+netstat -nlp | grep 9763
+netstat -lnt
+systemctl status activemq
+nohup bin/activemq > /tmp/smlog 2>&1 &
+netstat -antu
+8040-8094
+firewall-cmd --permanent --add-port=8040-8094/tcp
+ss -tulpn
+lsof -i -Pn | grep LISTEN
+https://www.digitalocean.com/community/tutorials/additional-recommended-steps-for-new-centos-7-servers
+mail IP:
+========
+http://192.168.2.72:8459/redmine/issues/1
+http://192.168.1.123:3000 [rocket] 
+
+192.168.1.101		[dev][Dev@Alpha@123%][uiteam/Dru@Ui@123#]
+192.168.1.111		[dev db]
+192.168.1.131		[qa db][dbuser/Dru@999]
+192.168.1.107:8080	[jenkin][35798][devops/Dru@Dev0ps@123]
+192.168.1.106		[qa][39485][drucareqa/Dru@User@123%][jenkins/Dru@DJen@123] 
+192.168.1.108		[qa arch][37286][drucarearchqa/Qa@Arch@123%]
+192.168.1.123		[rocket][35948][devops/Dru@Dev0ps@111]
+
+Dru@Devops@111#
+
+metricbeat:
+192.168.1.106[qa.dru.care]  ----metricbeat-6.6.1-2019.02.26
+192.168.1.107[jenkin]       ----metricbeat-6.6.1-2019.02.26
+192.168.1.108[arch]	    ----metricbeat-6.6.1-2019.02.26	
+192.168.1.123[rocket]
+
+config repo:
+https://git-codecommit.ap-south-1.amazonaws.com/v1/repos/dru-app-core-config
+
+
+Dru@Admin@111%%
+
+
+sudo chkconfig --add activemq
+systemctl start activemq
+systemctl status activemq
+
+Dru@Dev@123%
+Dru@Dev@111
+
+18.204.85.49:3388 old-qa-db
+activemq:192.168.1.108:8161
+61616-active
+
+ vi /var/lib/jenkins/secrets/initialAdminPassword/18a1af35f4b0460e9cb23c3ca6be85b9
+
+find / -name activemq.jar
+/var/activemq/bin/activemq.jar
+ 
+ bash command not found:
+ 
+ export
+ export PATH=/usr/local/bin:/usr/bin:$PATH
+ vi /etc/environment
+ remove all and save
+
+OWF430122078
+
+sudo find . -name "*.pyc" -exec rm -f {} \;
+
+devops::::https://www.google.com/chart?chs=200x200&chld=M|0&cht=qr&chl=otpauth://totp/devops@jenkin.dru.care%3Fsecret%3DW6OLFYJIGXF4YF3NCN7YCIUOFY%26issuer%3Djenkin.dru.care
+alphadev::::https://www.google.com/chart?chs=200x200&chld=M|0&cht=qr&chl=otpauth://totp/alphadev@dru.test01%3Fsecret%3DMYJBPRPV4OHNVYWKYPMXRSE34I%26issuer%3Ddru.test01
+
+
+ssh -p 65235 admin@10.0.0.89
+Dru@Dev0ps@123%
+
+npm i npm
+
+
+users:(("java",pid=10548,fd=130))
+[root@localhost init.d]# firewall-cmd --permanent --add-port=8888/tcp
+success
+[root@localhost init.d]# firewall-cmd --permanent --add-port=8761/tcp
+success
+[root@localhost init.d]# firewall-cmd --permanent --add-port=8161/tcp
+success
+[root@localhost init.d]# firewall-cmd --permanent --add-port=8888/tcp
+Warning: ALREADY_ENABLED: 8888:tcp
+success
+[root@localhost init.d]# firewall-cmd --permanent --add-port=1345/tcp
+success
+[root@localhost init.d]# firewall-cmd --permanent --add-port=8765/tcp
+success
+[root@localhost init.d]# firewall-cmd --permanent --add-port=8052/tcp
+succes
+
+
+http://cloud.spring.io/spring-cloud-static/Finchley.RELEASE/single/spring-cloud.html#ignore-network-interfaces
+
+qa:
+[root@qa init.d]# firewall-cmd --permanent --add-port=8040-8094/tcp
+
+git:
+To push the current branch and set the remote as upstream, use
+git push --set-upstream origin new
+
+postgres:
+psql: could not connect to server: No route to host
+    Is the server running on host "ec*-**-***-***-**.eu-west-1.compute.amazonaws.com" (**.***.***.**) and accepting
+    TCP/IP connections on port 5432?
+
+net stop [service name]
+
+
+docker:
+docker build
+docker run -p 80:80 --name opd <image ID>
+docker rmi <imageid> -f
+
+docker:
+opd,inventory,pharmacy  ipd,lab,website
+
+
+https://www.metaltoad.com/blog/angular-api-calls-django-authentication-jwt
+
+C:\Users\Drucare Pvt Ltd\AppData\Local\Programs\Python\Python37\lib\site-packages\
+
+
+Daily===========[dev server status,qa lambda state]
+
+Weekly:
+======
+1.revoking users permissions given on repositories and code access
+2.dev and qa logs data
+3.backups
+4.ami's management
+
+
+permissions on repo's:
+======================
+naresh dru.ui.core repo
+chaitanya communication
+
+https://www.centos.org/forums/viewtopic.php?t=32428[/etc/init.d is a symlink to /etc/rc.d/init.d]
+
+
+errors to be handle:
+====================
+error reading /var/lib/jenkins/.m2/repository/org/dcm4che/dcm4che-core/5.13.0/dcm4che-core-5.13.0.jar; error in opening zip file
+
+
+
+
+alpha_247  [Alpha@247] - admin
+devops_doc [Doctor@123] - doctor
+devops_rec [Devops@123] -receptionist
+
+
+deleting a service:
+192.168.1.101:8761/eureka/apps/emr-optho-siri2/dru.test01:emr-optho-siri2:8042
+
+http://49.207.6.227:8888/dev/ipd-application-dev.properties
+
+PUT method:
+http://49.207.6.227:8761/eureka/apps/EMR-SERVICE-VEER/dru.test01:emr-service-veer:8058/status?value=DOWN
+
+
+add 8056 in activemq.xml  place of 6666
+communication
+
+
+hostname: ${IP:localhost}
+ip-address: ${IP:localhost}
+instance-id: ${eureka.instance.hostname}:${spring.application.name}:${spring.application.instance_id:${server.port}}
+
+https://softwareengineering.stackexchange.com/questions/14335/biggest-mistake-youve-ever-made
+
+zuul=nohup java -Dspring.datasource.url=jdbc:postgresql://52.66.186.206:5432/drucare_qa -Dserver.ssl.key-store=/opt/app/certs/keystore.p12 -Dserver.ssl.key-store-password=Drucare@123 -Dserver.ssl.keyStoreType=PKCS12 -Dserver.ssl.keyAlias=dev-qa -jar $PATH_TO_JAR /tmp 2>> /dev/null >> /dev/null &  echo $! > $PID_PATH_NAME
+ 
+
+production jar release:
+----------------------
+STEP-1:
+=======
+1.upload new jars into below location of bastion server.
+    scp -P 15951 report-module-0.0.1.jar admin@13.234.78.109:/home/admin/deploy/
+2.login to bastion
+3.check wheather jar moved or not
+    cd /home/admin/deploy/
+3.now, cd /etc/init.d
+4.execute below command.
+      python move_java.py reports  --[jar will be copied to /home/admin/deploy of java server]
+      python move_ui.py app        --[dist moved to qa server]
+
+STEP-2:
+=======
+5.login to java server [ ssh -p 65235 username@IP]
+6.verify wheather new jar is present in /home/admin/deploy/
+7.cd /etc/inti.d
+8.run release script of java. 
+	python run_jar.py reports
+
+
+
+STEP:3
+------
+1.jenkins----cd disk1/
+
+
+ui:ssh -p 15951 druuiuser@10.0.4.23
+jar:ssh -p 65235  drooser@10.0.0.188[Dru@Dr00ser@123]
+
+
+
+
+
+
+
+
+
+QA containers:
+--------------
+pharmacy
+lab
+inventory
+ipd
+
+
+
+
+SSL:
+===
+https://blogs.oracle.com/blogbypuneeth/steps-to-create-a-self-signed-certificate-using-openssl
+https://www.westphahl.net/blog/2012/01/03/setting-up-https-with-nginx-and-startssl/
+
+1.openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365
+
+passphrase:drucare
+
+2.openssl rsa -in key.pem -out privkey.pem
+3.chmod 400 privkey.pem
+4.vi /etc/nginx/nginx.conf
+   ssl_certificate "/opt/app/certs/cert.pem";
+   ssl_certificate_key "/opt/app/certs/privkey.pem";
+
+java:
+----
+openssl pkcs12 -export -in cert.pem -inkey key.pem -out qakeystore.p12 -name "dev-qa"
+
+alias:dev-qa
+password:Drucare@123
+
+        ssl_certificate "/opt/app/certs/fullchain.pem";
+        ssl_certificate_key "/opt/app/certs/privkey.pem";
+ 
+
+IP Address=192.168.1.106
+IP Address=49.207.6.227
+
+Final SSL certificate generarted>
+---------------------------------
+
+openssl req -x509 -nodes -days 730 -newkey rsa:2048 \
+ -keyout cert.key -out cert.pem -config req.cnf -sha256
+
+or 
+
+openssl req -x509 -sha256 -nodes -days 3650 -newkey rsa:2048 -keyout key.pem -out cert.pem  -config req.cnf
+
+req.cnf:
+-------
+[req]
+default_bits = 2048
+default_keyfile = oats.key
+encrypt_key = no
+utf8 = yes
+distinguished_name = req_distinguished_name
+x509_extensions = v3_req
+prompt = no
+
+[req_distinguished_name]
+C = in
+ST = ap
+L = hyderabad
+O  = drucare
+OU = drucare
+CN = 192.168.1.106
+
+[v3_req]
+keyUsage = critical, digitalSignature, keyAgreement
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+
+[alt_names]
+IP.1 = 192.168.1.106
+IP.2 = 49.207.6.227
+
+
+new:/opt/app/qa_new_cert/qakeystore.p12      alias:dev-qa  password:Drucare@123
+old:/opt/app/certs/localqakeystore.p12		tomcat		venkat.t
+
+
+
+
+PUT .kibana/_settings
+{
+"index": {
+"blocks": {
+"read_only_allow_delete": "false"
+}
+}
+}
+
+prod:
+-----
+ 3939 imaging-0.0.1.jar
+25763 login-reg-0.0.1.jar
+3847 website-services-0.0.1.jar
+23560 Jps
+4010 chat-0.0.1.jar
+3821 appointment.jar
+3982 setting-0.0.1.jar
+3891 erx.jar
+13080 opd-0.0.1.jar
+26201 emr-0.0.1.jar
+3963 gateway-0.0.1.jar
+4031 quality.jar
+22527 report-module-0.0.1.jar
+
+
+git:
+---
+Create a new branch:
+git checkout -b feature_branch_name
+Edit, add and commit your files.
+Push your branch to the remote repository:
+git push -u origin feature_branch_name
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+prod:
+
+login 
+report
+emr-optho   [properties]
+optical     [properties]
+
+
+
+
+
+SELECT long_common_nm, loinc_system, investigation_department, time_aspect, is_panel, order_obs, test_rank FROM lab.lab_test_ref where isactive is true and is_panel is False and order_obs = 'Both' and loinc_system='Bld' and time_aspect='Pt' and (investigation_department ='HEMATOLOGY' or investigation_department is null)
+78.56289312839507
+..
+ 

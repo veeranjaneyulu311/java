@@ -64,6 +64,9 @@ G  - end of file
 $  - end of line	
 ^  - start of line
 %  - blocks matching
+:/searchword [enter][n-next occurence]
+:%s/oldword/replacingword/g ---in all occurences of old word
+:%s/oldword/replacingword/  ---first occurence
 commands:
 =========
 [cd -]  last working directory
@@ -253,6 +256,11 @@ docker run -d -p 8094:8094 --name inventory 69d6afdc52f9
 map logs:
 docker run -d -p 8094:8094 -v /logs:/logs inventory
 
+add to above command for memory
+--memory=2000m
+--cpus=0.25
+
+docker inspect -f '{{ .Created }}' IMAGE_OR_CONTAINER
 
 run:
 ---
@@ -397,7 +405,6 @@ gamma_team=ipd,erx,emr,website-service,gateway,quality
 beta_team=appointment,appointment-new,opd,internal-app
 
 
-
 references:
 ===========
 websocket:
@@ -465,28 +472,54 @@ group by created_usr_id, drug_id order by created_usr_id, usedRank desc
 ) as query
 where query.rownum <= 10	
 
+
+select created_usr_id, created_dttm, row_number() over (partition by created_usr_id order by created_dttm) as rn from opd.patient_prescription_drugs_trans 
+
+select ppdt.created_usr_id, ppdt.created_dttm, ppdt.rn from(select created_usr_id, created_dttm, row_number() over (partition by created_usr_id order by created_dttm) as rn from opd.patient_prescription_drugs_trans where created_usr_id) as ppdt where ppdt.rn=1;
+
+1 month users:
+select ppdt.created_usr_id, ppdt.created_dttm, ppdt.rn from(select created_usr_id, created_dttm, row_number() over (partition by created_usr_id order by created_dttm) as rn from opd.patient_prescription_drugs_trans)  as ppdt where ppdt.rn=1 and ppdt.created_dttm >= CURRENT_DATE -INTERVAL '1MONTH';
+
+>1 <6 months
+select ppdt.created_usr_id, ppdt.created_dttm, ppdt.rn from(select created_usr_id, created_dttm, row_number() over (partition by created_usr_id order by created_dttm) as rn from opd.patient_prescription_drugs_trans)  as ppdt where ppdt.rn=1 and ppdt.created_dttm between CURRENT_DATE -INTERVAL '6 MONTHS' and CURRENT_DATE -INTERVAL '1MONTH'
+
+>6 and <12
+
 ==========================================================================================================
 starting xe,rocketchat,openproject
 
 XE:
 
-cd /opt/xe..
-.ctls script start
+cd /opt/x2engine
+./ctlscript start
 
 Open Proj:
 ----------
 docker container openproject start
 Firsttime:
+---------
 docker run -d -p 7889:80 --name openproject -e SECRET_KEY_BASE=secret -v /var/lib/openproject/pgdata:/var/lib/postgresql/9.6/main -v /var/lib/openproject/logs:/var/log/supervisor -v /var/lib/openproject/static:/var/db/openproject openproject/community:8
+
+Second time:
+-----------
+docker start openproject
+docker exec -it <container name> /bin/bash
+cd /var/run/apache2  [remove pid file in this location]
+docker stop openproject
+docker start openproject
 
 sudo firewall-cmd --zone=public --permanent --add-port=7889/tcp
 
+
+netConnectivity:
+----------------
 Remember from open project if mails cant be send, there seems a internet issue in the server. To restore internet connectivity, do the below things.
 $ source /root/.bash_profile
 $caa -d
-Do these things a root user. Check if internet connectivity works.
+Do these things as root user. Check if internet connectivity works.
 
 Rocket chat:
+------------
 /etc/init.d/rocketchat_all start
 
 
@@ -494,6 +527,7 @@ community.openproject.com/projects/docker/work_packages/24378/activity
 
 Use the command docker exec -it <container name> /bin/bash to get a bash shell in the container
 Generically, use docker exec -it <container name> <command> to execute whatever command you specify in the container.
+
 
 
 unmount a device:https://www.webhostinghero.com/blog/how-to-unmount-filesystems-or-partitions-in-centos-linux/
@@ -837,13 +871,22 @@ http://docs.alfresco.com/community/concepts/alfresco-tutorial-02.html
 
 shared-v:
 https://realpython.com/
+https://codybonney.com/allow-cross-origin-resource-sharing-cors-using-flask/
+https://flask-cors.readthedocs.io/en/latest/
 
 
 
 
-
+python -m pip install -U --force-reinstall pip
 
 
 RUN apk add tzdata
 RUN cp /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
 RUN echo "Asia/Kolkata" > /etc/timezone
+
+
+
+pharmacy task for comparing tests and panels:
+---------------------------------------------
+
+https://towardsdatascience.com/natural-language-processing-for-fuzzy-string-matching-with-python-6632b7824c49

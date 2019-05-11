@@ -1,0 +1,64 @@
+beats installation:
+
+	1. metric beat installation from source.
+		-> Download and install the public signing key:
+		   sudo rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
+
+		-> Create a file with a .repo extension (for example, elastic.repo) in your /etc/yum.repos.d/ directory and add the following lines:
+			[elastic-6.x]
+			name=Elastic repository for 6.x packages
+			baseurl=https://artifacts.elastic.co/packages/6.x/yum
+			gpgcheck=1
+			gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+			enabled=1
+			autorefresh=1
+			type=rpm-md
+
+		->	Your repository is ready to use. For example, you can install Metricbeat by running:
+			sudo yum install metricbeat
+
+		->	To configure the Beat to start automatically during boot, run:
+			sudo chkconfig --add metricbeat
+
+		After it is installed , configure metricbeat.yml file /etc/metricbeat/ for appropriate elasticsearch and kibana locations[https://logz.io/blog/metricbeat-tutorial/]
+		
+			->Metricbeat output section in the Metricbeat configuration file defines where you want to ship the metrics to.
+				to elasticsearch				i.e	output.elasticsearch:
+														hosts: ["localhost:9200"]
+										
+										(or)
+				
+				to logstash						i.e	output.logstash:
+														hosts: ["localhost:5044"]		
+
+		
+		sudo systemctl enable  metricbeat
+
+		sudo systemctl start   metricbeat
+
+		sudo systemctl status  metricbeat
+		
+-----------
+
+
+issues
+journalctl -u kibana.service
+
+elasticsearch.url
+
+
+
+http://49.207.6.227:5601/
+
+elk.dru.care	
+20.2%
+dru.test01	
+4.1%
+ip-10-0-0-84.ec2.internal	
+2.4%
+ip-10-0-1-215.ec2.internal
+
+
+
+
+once installed change the conf file in /etc/metricbeat/ for pointing to elasticsearch ip and port and other settingss

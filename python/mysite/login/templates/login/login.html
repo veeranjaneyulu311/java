@@ -36,7 +36,7 @@
     <link href="{% static 'login/signin.css' %}" rel="stylesheet">
 	<link href="{% static 'login/bootstr.css' %}" rel="stylesheet">
 </head>
-  <body class="text-center">
+  <body class="text-center" style="background-color: #f5f5f5">
     <form class="form-signin" action="{% url 'uservalidation' %}" method="post">
    {% csrf_token %}
   <img class="mb-4" src="{% static 'login/images/dru.jpg' %}" alt="" width="72" height="72">
