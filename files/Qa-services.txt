@@ -1,0 +1,85 @@
+Qa Java Breakdown 
+
+-------------------------------------------------in-qa-arch-1a--------------------------------------------------------------
+Module Name                Port        TargetGroupAdded(Target also)   JAR/Script/Uploaded      TestStatus   SecurityGroup    
+
+Zuul   [nv-qa-arch]       8765                  Y                             Y                    N                 Y
+https://${ip}:8765/info for testing it
+
+Communication             8052                 N/A                            Y                    N                 Y                           
+
+Config                    8888                 N/A                            Y                    N                 Y
+
+Eureka                    8761                 N/A                            Y                    N                 Y
+
+Spring Boot Dash Bord     1345                 N/A                            Y                    N                 Y
+
+
+-------------------------------------------------END-arch-1a-END--------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------in-Qa-app-1a------------------------------------------------------
+ModuleName         Port        TargetGroupAdded(Target also)   JAR/Script/Uploaded      TestStatus   SecurityGroup    
+
+Quality            8041            Y                                 Y                        N             Y
+                 
+Appointment        8045            Y                   	             Y		              N             Y
+
+OPD		   8047            Y                                 Y                        N             Y
+
+Reports-api	   8049            Y                                 Y                        N             Y 
+
+DoctorModule       8050            Y                                 Y                        N              Y
+
+Billing_api        8051            Y                                 Y                        N              Y
+
+catalogue-api(settings)      8062            Y                                 Y                        N              Y
+
+login(1A)          8040            Y                                 Y                        N              Y
+
+Need to add env files
+merged====[Billing , OPD , Catalog and Insurance]
+merged====[nursingcare and ipd]
+---------------------------------------------------1A Production--------------------------------------------------
+
+---------------------------------------------------in-Qa-app-1b-ws----------------------------------------------
+ModuleName         Port        TargetGroupAdded(Target also)   JAR/Script/Uploaded      TestStatus   SecurityGroup    
+
+IPD(1B)            8057                Y                             Y                      N             Y
+
+ERX(1B)            8054                Y                             Y                      N             Y
+
+Insurence(ARC)     8090               N/A                            Y                      N             Y
+
+setting(1bArch)    8066               N/A                            Y                      N             Y 
+
+EMR(1B Arc)        8058               N/A                            Y                      N             Y
+
+pharmacy-api(Arch) 8063               N/A                            Y                      N             Y
+
+-------------------------------------------------END -Qa-1B- END-----------------------------------------------------------------
+
+-------------------------------------------------in-Qa-app-1c---------------------------------------------------------------
+
+ModuleName                Port        TargetGroupAdded(Target also)   JAR/Script/Uploaded      TestStatus   SecurityGroup    
+
+lab(arch)                 8065                  N/A                          Y                     N               Y
+CHAT-API/ 1C)             8048                   Y                           Y                     N               Y
+
+Gateway-API(1C)           8055                   Y                           Y                     N              Y
+
+nursingcare-api(arc)      8067                   N/A                         Y                     N              Y
+
+imaging-api(1C)           8081                   Y                           Y                     N              Y(need to add setup files)
+
+insurance-api(Need to remove in prod and qa)  8090                   N/A                         Y                     N              removed
+
+website-api(1C)           8092                    Y                          Y                     N              Y (socket issue)
+
+inventory(1C)             8094                   N/A                         Y                     N              Y
+patient portal
+-------------------------------------------------END-in-Qa-app-1c-END---------------------------------------------------------------   
+
+SELECT COMB_DRUGNM,COMB_DRUGID FROM  PUBLIC.DRUGS_INFO WHERE COMB_DRUGNM ILIKE %@@%drugName% ----for drug combination
+SELECT COMB_DRUGNM,COMB_DRUGID FROM  PUBLIC.DRUGS_INFO WHERE COMB_DRUGNM ILIKE drugName%@@%  ----for brand search
+SELECT COMB_DRUGNM,COMB_DRUGID FROM  PUBLIC.DRUGS_INFO WHERE COMB_DRUGNM ILIKE %@@drugName% AND COMB_DRUGNM NOT ILIKE '%+%' ----for individual drug search
+

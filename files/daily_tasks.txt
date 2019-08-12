@@ -1,0 +1,10 @@
+1.disk spaces [qa,dev,elk,jenkins]
+2.services up status [qa,dev]
+3.names to qa containers
+4.release scripts
+5.logs spaces
+
+
+Jaswanth Koyilada
+
+Dharma Choudhary

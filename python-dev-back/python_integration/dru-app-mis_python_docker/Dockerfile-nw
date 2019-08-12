@@ -1,0 +1,19 @@
+# python runtime
+FROM python:3.7.1-alpine
+
+# working directory
+WORKDIR /app
+
+# copy current directory into the container
+ADD . /app
+
+RUN pip install --upgrade pip
+
+RUN \
+ apk update && \
+ apk add --no-cache --virtual .build-deps  postgresql-dev gcc python3-dev musl-dev && \
+ pip3 install -r requirements.txt --no-cache-dir
+
+EXPOSE 8049
+ENTRYPOINT ["sh", "-c","/app/start.sh" ]
+

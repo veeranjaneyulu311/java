@@ -1,0 +1,80 @@
+http://49.207.6.227:8049/reports/fetchOrgWiseTopTenDiseases
+{"orgId":1333,"authenticatedUserId":220190316000001,"orgGrpId":2775,"key":"month"}
+{"data":[{"diseasesCount":2,"diseaseName":"K77 Liver disorders in diseases classified elsewhere"},{"diseasesCount":1,"diseaseName":"H36 Retinal disorders in diseases classified elsewhere"},{"diseasesCount":1,"diseaseName":"I279 Pulmonary heart disease, unspecified"}],"responseCode":"E200","responseMessage":"FETCHED SUCCESSFULLY","validations":[{"message":"FETCHED SUCCESSFULLY","errCode":"MIS10006"}]}
+
+
+https://192.168.1.106:8049/reports/fetchDoctorWiseConsultationsCount
+{"data":[{"doctorName":"Shivaji Naveen ","consultationCount":9},{"doctorName":"Sai Kiran ","consultationCount":6},{"doctorName":"Syed Sadam ","consultationCount":2},{"doctorName":"Phani Kumar ","consultationCount":2}],"responseCode":"E200","responseMessage":"FETCHED SUCCESSFULLY","validations":[{"message":"FETCHED SUCCESSFULLY","errCode":"MIS10006"}]}
+
+
+operational:
+fetchBranchWisePatientCount
+fetchBranchWisePatientVisitCount
+fetchBranchPatientCount
+fetchBranchPatientVisitCount
+
+clinical:
+fetchOrgWiseTopTenDiseases
+fetchOrgWiseTopTenDrugBrandQty
+fetchTopTenSellingDrugBrands
+fetchDoctorWiseConsultationsCount
+fetchOrgWiseNearExpireDrugs
+fetchPharmacyCurrentInventory
+
+
+
+
+financial:
+(1) fetchOrgGrpWiseInvoiceCount
+(2)fetchOrgWiseInvoiceCount
+(3) fetchOrgGrpWiseIPDCollections
+(4) fetchOrgWiseIPDCollections
+(5) fetchOrgGrpWiseOPDCollections
+(6)fetchOrgWiseOPDCollections
+(7) fetchOrgGrpWiseIpdAndOpdAndPharmacyCollections
+(8) fetchBranchWiseCollections
+(9) totalRevenueGeneratedForIPDBeds
+(10) fetchOrgWisePharmacyProfits
+
+
+
+
+I think you want RealDictCursor, this returns each row as dict and you dont need to modify your SQL queries:
+
+from psycopg2.extras import RealDictCursor
+
+cur = conn.cursor(cursor_factory=RealDictCursor)
+query_sql = "SELECT id, name FROM products where id < 10" 
+cur.execute(query_sql)
+results = cur.fetchall()
+print(results)
+
+[(331, 1260, '4D Kit'), (233, 1260, '10 CM EXTENTION'), (162, 1260, 'Accu Kof'), (68, 1260, 'Cefdre 500 mg'), (66, 1260, 'Azirel 250 mg'), (57, 1260, '20 Famoflam 20 mg'), (53, 1260, 'JACKS
+ON-REES CIRCUIT'), (38, 1260, 'Aacedase P (500+100+15)'), (36, 1260, 'MRI Scanner'), (25, 1260, '2 Calm')]
+
+LINE 1: ...detailed_info_trans PPOSDIT WHERE PPOSDIT.org_id =:orgId AND...
+unsupported format character ' ' (0x20) at index %Id
+
+
+validations:
+https://webargs.readthedocs.io/en/latest/
+
+
+{"transactionId":"B28822973DB14EF09893FC5C6C09CD66","systemName":"Unknown Computer","moduleName":"MIS","apiName":"fetchOrgWiseTopTenDiseases","timeStamp":"2019-04-16 10:09:39.391","status":"START","payLoad":[{"orgId":1129,"authenticatedUserId":220180914000001,"orgGrpId":880,"Key":"month","startDt":null,"endDt":null,"key":"month"}]}
+{"transactionId":"B28822973DB14EF09893FC5C6C09CD66","systemName":"Unknown Computer","moduleName":"MIS","apiName":"fetchOrgWiseTopTenDiseases","timeStamp":"2019-04-16 10:09:40.767","status":"END","payLoad":[{"orgId":1129,"authenticatedUserId":220180914000001,"orgGrpId":880,"Key":"month","startDt":null,"endDt":null,"key":"month"}]}
+
+https://junxiandoc.readthedocs.io/en/latest/docs/flask/flask_request_response.html
+https://junxiandoc.readthedocs.io/en/latest/docs/flask/flask_logging.html
+http://flask.pocoo.org/docs/1.0/api/
+
+
+https://stackoverflow.com/questions/9252543/importerror-cannot-import-name-x
+https://stackoverflow.com/questions/5748946/pythonic-way-to-resolve-circular-import-statements
+
+swagger:
+https://pypi.org/project/flask-swagger/
+>pip install flask-swagger
+
+https://github.com/rochacbruno/flasgger
+http://brunorocha.org/python/flask/flasgger-api-playground-with-flask-and-swagger-ui.html ***
+pip install flasgger

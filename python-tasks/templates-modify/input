@@ -1,0 +1,2 @@
+Dear ${patientNm}, 
+Your purchases against order no: ${orderNo} is ready for delivery. Please collect at ${orgNm}.

@@ -1,0 +1,22 @@
+adminmodule-dev/dru-app-core_admin/login-reg-0.0.1.jar/login
+app-core/dru-app-core_common/adminmodule-dev-post-build-trigger
+appointment-dev/dru-app-core_appointment[appointment]/appointment.jar/appointment
+billingmodule-dev/dru-app-core_opd[billing]/billing-0.0.1.jar/billing
+catalog-dev/dru-app-core_opd[settings]/settings-0.0.1.jar/catalog
+communication-dev/dru-app-core_communication[communication]/communication-0.0.1-SNAPSHOT.jar/communication
+emr-dev/dru-app-core_emr/emr-0.0.1.jar/emr
+erx-dev/dru-app-core_erx/erx.jar/erx
+gateway-dev/dru-app-core_promosms[promosms]/promosms-0.0.1.jar/promosms
+insurance-dev/dru-app-core_insurance/insurance-0.0.1.jar/insurance
+inventory/dru-app-core_inventory[]/inventory-0.0.1.jar/inventory
+ipd/dru-app-core_Ipd[ipd]/ipd-0.0.1-jar/ipd
+lab/dru-app-core_lab[lab]/lab-0.0.1.jar/lab
+nursingcare/dru-app-core_Ipd[nursing-care]/nursing-care-0.0.1.jar/nursing-care
+opd/dru-app-core_opd[opd]/opd-0.0.1.jar/opd
+patient-port-dev/dru-app-core_patient-portal[patient-portal]/no post build action
+pharamacy/dru-app-core_pharmacy[pharmacy]/pharmacy-0.0.1.jar/pharmacy
+quality/dru-app-core_quality/quality.jar/quality
+reportsmodule/dru-app-core_reports/report-module-0.0.1.jar/reports
+ui-angular6-dev
+ui-core
+website/dru-app-core_website[website-services00]/website-services-0.0.1.jar/website-services

@@ -1,0 +1,95 @@
+import sys
+import os
+import subprocess as sp
+import datetime
+import time
+import shutil
+#list of services with their respective pid files
+import zipfile
+
+# the below variable store following details
+# key : name of the dist
+# value : [nginx_ui_deploy_location,new_ui_dist_location]
+
+ui_release={'test':['/opt/app/dist/app','/home/alphadev/del/app','app'],'dev-app':['/var/lib/tomcat/webapps/app','/home/uiteam/dev/app','app'],'dev-new':['/var/lib/tomcat/webapps/new','/home/uiteam/dev/new','new'],'dev-root':['/var/lib/tomcat/webapps/ROOT','/home/uiteam/dev/ROOT','ROOT'],'emr-app':['/opt/app/ui/commonreg/app','/home/uiteam/emr/app','app'],'emr-new':['/opt/app/ui/commonreg/new','/home/uiteam/emr/new','new'],'emr-root':['/opt/app/ui/commonreg/ROOT','/home/uiteam/dev/ROOT','ROOT'],'ware-app':['/opt/app/ui/warehouse/app','/home/uiteam/warehouse/app','app'],'ware-new':['/opt/app/ui/warehouse/new','/home/uiteam/warehouse/new','new'],'ware-root':['/opt/app/ui/warehouse/ROOT','/home/uiteam/warehouse/ROOT','ROOT']}
+
+
+
+#list of variables
+execute = False
+
+dist_name = None
+
+distFolderApp = '/home/uiteam/dev/app/'
+distFolderNew = '/home/uiteam/dev/new/'
+
+if not os.listdir(distFolderApp):
+    print("no dist for deploy in app")
+else:
+    dist_name = 'dev-app'
+    execute = True
+
+
+if not os.listdir(distFolderNew):
+    print("no dist for deploy in new")
+else:
+    dist_name = 'dev-new'
+    execute = True
+
+today_date=datetime.datetime.now().strftime("%Y-%b-%d")
+
+backup_directory=''
+nginx_ui_deploy_location=''
+new_ui_dist_location=''
+
+
+#It creates backup directory with today's date
+def create_backup_directory():
+        if (os.path.isdir(backup_directory)==False):
+                os.mkdir(backup_directory)
+
+
+
+#This function renames recently moved jar in backup directory
+def rename_existing(name_to_be_change):
+        #get all existing files list
+        current_jars=os.listdir(backup_directory)
+        #get current given jars
+        same_jars=list(filter(lambda file:file.startswith(name_to_be_change),current_jars))
+        #get recent jar
+        recent_jar=list(filter(lambda file:file==name_to_be_change,same_jars))
+        if len(recent_jar)!=0:
+                rollover_name='{}/{}.{}'.format(backup_directory,recent_jar[0],len(same_jars)-1)
+                os.rename('{}/{}'.format(backup_directory,ui_release[dist_name][2]),rollover_name)
+
+
+# controlling function for ui release steps
+def startui():
+        create_backup_directory()
+        rename_existing(ui_release[dist_name][2])
+        os.chdir(new_ui_dist_location)
+        with zipfile.ZipFile("dist.zip","r") as zip_ref:
+                zip_ref.extractall(".")
+        if dist_name in ['dev-app','dev-root','test']:
+                loc="mv "+new_ui_dist_location+"/dist/* ."
+                print(loc)
+                sp.call(loc, shell=True)
+        elif dist_name in ['dev-new']:
+                loc="mv "+new_ui_dist_location+"/dist/drucare/* ."
+                print(loc)
+                sp.call(loc, shell=True)
+        sp.call(['rm','-rf','dist','dist.zip'])
+        shutil.move(nginx_ui_deploy_location,backup_directory)
+        shutil.copytree(new_ui_dist_location,nginx_ui_deploy_location)
+        sp.call('rm -rf *',shell=True)
+
+if ui_release.has_key(dist_name) and execute:
+        backup_directory='/opt/app/uibackup/{}'.format(today_date)
+        nginx_ui_deploy_location=ui_release[dist_name][0]
+        new_ui_dist_location=ui_release[dist_name][1]
+        startui()
+
+
+else:
+        print('no dist with name '+str(dist_name))
+
