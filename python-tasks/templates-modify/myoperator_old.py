@@ -89,17 +89,17 @@ query_to_update_doct_id_selected = "UPDATE PUBLIC.MYOPERATOR_APPOINTMENT_TEMP_TR
 query_to_fetch_days = "SELECT DISTINCT(WORKING_DAY) FROM APPOINTMENT.DOCTOR_WORK_INFO_TRANS WHERE ORG_ID=%(org_id)s AND DOCTOR_ID=%(doctor_id)s AND DOCTOR_REGISTER_NO IS NOT NULL"
 
 #: messages
-doctor_available_days_message = "The doctor will be available on {}, Please enter date inn  dd, m m  format"
+doctor_available_days_message = "The doctor will be available on {} Please enter the date of appointment in dd mm format"
 
 #: queries and messages required for node_type=time slots
 #: queries
 query_to_fetch_doct_id_for_time_slot = "SELECT DOCTORS_LIST FROM PUBLIC.MYOPERATOR_APPOINTMENT_TEMP_TRANS WHERE ORG_ID=%(org_id)s AND MYOP_CALLER_CODE=%(uid)s"
-query_to_fetch_time_slots = "SELECT DOCTOR_ID, START_TM, END_TM FROM APPOINTMENT.DOCTOR_WORK_INFO_TRANS WHERE ISACTIVE=TRUE AND DOCTOR_ID=%(doctor_id)s AND ORG_ID=%(org_id)s AND WORKING_DAY ilike %(day)s order by TO_TIMESTAMP(start_tm, 'HH24:MI')::TIME"
+query_to_fetch_time_slots = "SELECT DOCTOR_ID, START_TM, END_TM FROM APPOINTMENT.DOCTOR_WORK_INFO_TRANS WHERE ISACTIVE=TRUE AND DOCTOR_ID=%(doctor_id)s AND ORG_ID=%(org_id)s AND WORKING_DAY ilike %(day)s"
 query_to_update_appointment_date = "UPDATE PUBLIC.MYOPERATOR_APPOINTMENT_TEMP_TRANS SET TIMESLOT_LIST= %(appointment_date)s WHERE ORG_ID=%(org_id)s AND MYOP_CALLER_CODE=%(uid)s"
 
 #: messages
-doctor_available_time_slots_message = "On your given date, the doctor will be available from {} please enter the time in 24 hours format"
-slots_not_available_on_given_date_message = "The Doctor has no appointments on Your given date, Please book appointment on another date"
+doctor_available_time_slots_message = "On your given date, the doctor will be available from {}.please enter the time in twenty four hours format for booking the appointment as hours and minutes"
+slots_not_available_on_given_date_message = "The Doctor has no appointments on Your given date.Please book appointment on another date"
 incorrect_date_format_message = "Please enter correct date format.It should be three or four numbers"
 invalid_day_or_month = "please enter valid day and month"
 
@@ -108,30 +108,28 @@ invalid_day_or_month = "please enter valid day and month"
 #: queries
 query_to_fetch_appointment_date = "select timeslot_list->'appointment_date' from public.myoperator_appointment_temp_trans WHERE ORG_ID=%(org_id)s AND MYOP_CALLER_CODE=%(uid)s"
 query_to_fetch_slots_booked_on_given_date = "SELECT PAT.DOCTOR_ID, DST.APPOINTMENT_DURATION, APPOINTMENT_DT FROM APPOINTMENT.PATIENT_APPOINTMENT_TRANS PAT LEFT JOIN APPOINTMENT.DOCTOR_SETTINGS_TRANS DST ON PAT.DOCTOR_ID=DST.DOCTOR_ID AND PAT.ORG_ID=DST.ORG_ID WHERE PAT.DOCTOR_ID=%(doctor_id)s AND PAT.ORG_ID=%(org_id)s AND APPOINTMENT_DT=timestamp %(appointment_starttime)s and PAT.isactive=true"
-query_to_check_doctor_available = "SELECT start_tm, end_tm FROM APPOINTMENT.DOCTOR_WORK_INFO_TRANS where TO_TIMESTAMP(%(time)s, 'HH24:MI')::TIME >= TO_TIMESTAMP(start_tm, 'HH24:MI')::TIME and TO_TIMESTAMP(%(time)s, 'HH24:MI')::TIME < TO_TIMESTAMP(end_tm, 'HH24:MI')::TIME and working_day = %(day)s and doctor_id = %(doctor_id)s and org_id = %(org_id)s"
+query_to_check_doctor_available = "SELECT start_tm, end_tm FROM APPOINTMENT.DOCTOR_WORK_INFO_TRANS where TO_TIMESTAMP(%(time)s, 'HH24:MI')::TIME between start_tm::time and end_tm::time and working_day = %(day)s and doctor_id = %(doctor_id)s and org_id = %(org_id)s"
 query_to_update_appointment_time = "UPDATE PUBLIC.MYOPERATOR_APPOINTMENT_TEMP_TRANS SET TIMESLOT_LIST= %(appointment_time)s WHERE ORG_ID=%(org_id)s AND MYOP_CALLER_CODE=%(uid)s"
-query_to_fetch_next_nearest_time_slot = "(SELECT start_tm, end_tm FROM APPOINTMENT.DOCTOR_WORK_INFO_TRANS where TO_TIMESTAMP(%(time)s, 'HH24:MI')::TIME < TO_TIMESTAMP(start_tm, 'HH24:MI')::TIME and working_day = %(day)s and doctor_id = %(doctor_id)s and org_id = %(org_id)s order by TO_TIMESTAMP(start_tm, 'HH24:MI')::TIME limit 1) union (SELECT start_tm, end_tm FROM APPOINTMENT.DOCTOR_WORK_INFO_TRANS where TO_TIMESTAMP(%(time)s, 'HH24:MI')::TIME > TO_TIMESTAMP(start_tm, 'HH24:MI')::TIME and working_day = %(day)s and doctor_id = %(doctor_id)s and org_id = %(org_id)s order by TO_TIMESTAMP(start_tm, 'HH24:MI')::TIME desc limit 1)"
+query_to_fetch_next_nearest_time_slot = "SELECT start_tm, end_tm FROM APPOINTMENT.DOCTOR_WORK_INFO_TRANS where TO_TIMESTAMP(%(time)s, 'HH24:MI')::TIME < start_tm::time and working_day = %(day)s and doctor_id = %(doctor_id)s and org_id = %(org_id)s order by start_tm::time limit 1"
 
 
 #: messages
-incorrect_time_format_message = "Please enter correct time format, it should not exceed 2 numbers"
-invalid_time_message = "enter valid time in 24 hours format"
-slot_confirmation_request_message = "The Doctor is available from {} to {}, press 1 to confirm the appointment, 3 to cancel the appointment"
-slot_not_available_at_given_time_message = "The doctor have no appointments on your given time,"
-next_slot_message = 'press {} for booking appointment at {} to {}, '
-next_available_slot_for_given_time_message = "{} 3 to cancel the appointment"
+incorrect_time_format_message = "Please enter correct time format. it should not be more than four numbers."
+invalid_time_message = "enter valid hours and minutes"
+slot_confirmation_request_message = "The Doctor is available from {} to {}.press one to confirm the appointment and two to cancel the appointment"
+slot_not_available_at_given_time_message = "The doctor has no appointments at your given time."
+next_available_slot_for_given_time_message = "The doctor is having slot from {} to {}. press one to confirm the appointment and two to cancel the appointment"
 
 
 #: queries and messages required for node_type=confirm appointment
 #: queries
-query_to_get_appointment_time = "select timeslot_list->%(input)s as appointment_date_time from public.myoperator_appointment_temp_trans WHERE ORG_ID=%(org_id)s AND MYOP_CALLER_CODE=%(uid)s"
-query_to_update_booking_status_on_confirmation = "update public.myoperator_appointment_temp_trans set timeslot_list = JSONB_SET(timeslot_list, '{%(input)s}',%(selected_time_update)s), is_booked= %(is_confirmed)s where org_id=%(org_id)s and myop_caller_code=%(uid)s"
+query_to_update_booking_status_on_confirmation = "update public.myoperator_appointment_temp_trans set is_booked= %(is_confirmed)s where org_id=%(org_id)s and myop_caller_code=%(uid)s"
 query_to_fetch_patient_appoi_details = "select myop_caller_code, dept_list, doctors_list, timeslot_list	FROM public.myoperator_appointment_temp_trans where org_id=%(org_id)s and myop_caller_code=%(uid)s"
 query_update_appointment_details_in_appointment_trans = "insert into appointment.patient_appointment_trans(patient_id,appointment_dt,org_id,dept_id,doctor_id,appointment_type) values(%(patient_id)s,%(appointment_dt)s::timestamp without time zone,%(org_id)s,%(dept_id)s,%(doctor_id)s,%(appointment_type)s)"
 query_to_delete_booking_data_on_cancellation = "delete from public.myoperator_appointment_temp_trans where org_id=%(org_id)s and myop_caller_code=%(uid)s"
 
 #: messages
-confirmation_message = "Your appointment with doctor {}, is scheduled on your given date at {}"
+confirmation_message = "Your appointment is confirmed"
 cancellation_message = "Your appointment is cancelled"
 invalid_input_message = "please enter valid option"
 
@@ -256,43 +254,6 @@ def fetch_doctors_node(conn, org_id, uid, selected_input_option):
     return data
 
 
-# convert dates to words(i.e 1st 2nd 3rd)
-def convert_date_to_word(day_as_num):
-    return "%d%s" % (day_as_num, {1: "st", 2: "nd", 3: "rd"}.get(day_as_num if day_as_num < 20 else day_as_num % 10, "th"))
-
-
-# returns ivrs messages for given dates list
-def converts_dates_as_message(upcoming_doctor_available_dates, data, today):
-    upcoming_doctor_available_dates = sorted(upcoming_doctor_available_dates, key=lambda d: d)
-
-    current_month_dates = []
-    next_month_dates = []
-
-    # separate the dates based on month
-    for current_date in upcoming_doctor_available_dates:
-        if current_date.month == today.month:
-            current_month_dates.append(current_date)
-        else:
-            next_month_dates.append(current_date)
-
-    # convert current month dates to words
-    if len(current_month_dates) != 0:
-        for available_date in current_month_dates:
-            date_in_word = convert_date_to_word(available_date.day)
-            data = data + date_in_word + ", "
-
-        data += "of this month, "
-
-    if len(next_month_dates) != 0:
-        for available_date in next_month_dates:
-            date_in_word = convert_date_to_word(available_date.day)
-            data = data + date_in_word + ", "
-
-        data += "of next month,"
-
-    return data
-
-
 #: This function gets executed when node type is days
 def fetch_days_node(conn, org_id, uid, selected_input_option):
     non_real_dict_cursor = get_non_real_dict_cursor(conn)
@@ -309,22 +270,10 @@ def fetch_days_node(conn, org_id, uid, selected_input_option):
     available_days = [day[0] for day in available_days]
 
     data = ""
-    days = ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')
-
-    today = datetime.date.today()
-    upcoming_doctor_available_dates = []
-
-    # get the dates of available days of doctor
-    for day in available_days:
-        next_day = today
-        is_date_added = True
-        while is_date_added:
-            if next_day.weekday() == days.index(day):
-                upcoming_doctor_available_dates.append(next_day)
-                is_date_added = False
-            next_day = next_day + datetime.timedelta(days=1)
-
-    data = converts_dates_as_message(upcoming_doctor_available_dates, data, today)
+    days = ['monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    for day in days:
+        if day in available_days:
+            data = data + day + ","
 
     # update "selected=1" for the user opted dept id
     real_dict_cursor = get_real_dict_cursor(conn)
@@ -335,7 +284,6 @@ def fetch_days_node(conn, org_id, uid, selected_input_option):
     real_dict_cursor.execute(query_to_update_doct_id_selected, sql_parameters_for_transaction)
 
     data = doctor_available_days_message.format(data)
-
     return data
 
 
@@ -346,17 +294,14 @@ def fetch_timings_node(conn, org_id, uid, selected_input_option):
     non_real_dict_cursor = get_non_real_dict_cursor(conn)
     appointment_date = selected_input_option
 
-    # get day, month, year in date
     if len(appointment_date) == 3:
         day = int(appointment_date[0])
         month = int(appointment_date[1:])
         year = datetime.datetime.now().year
-
     elif len(appointment_date) == 4:
         day = int(appointment_date[0:2])
         month = int(appointment_date[2:])
         year = datetime.datetime.now().year
-
     # if enter date is more than 4 digits
     elif len(appointment_date) < 3 or len(appointment_date) > 4:
         return incorrect_date_format_message
@@ -401,27 +346,14 @@ def fetch_timings_node(conn, org_id, uid, selected_input_option):
 
             # conditions to check the time AM or PM
             if 12 < start_hours <= 24:
-                timings = timings + str(start_hours) + " "
-                if start_minutes != 0:
-                    timings += str(start_minutes)
-                timings += " P M"
+                timings = timings + str(start_hours - 12) + ":" + str(start_minutes) + "PM"
             else:
-                timings = timings + str(start_hours) + " "
-                if start_minutes != 0:
-                    timings += str(start_minutes)
-                timings += " A M"
+                timings = timings + str(start_hours) + ":" + str(start_minutes) + "AM"
 
             if 12 < end_hours <= 24:
-                timings = timings + " TO " + str(end_hours) + " "
-                if end_minutes != 0:
-                    timings += str(end_minutes)
-                timings += " P M,"
-
+                timings = timings + " TO " + str(end_hours - 12) + ":" + str(end_minutes) + "PM,"
             else:
-                timings = timings + " TO " + str(end_hours) + " "
-                if end_minutes != 0:
-                    timings += str(end_minutes)
-                timings += " A M,"
+                timings = timings + " TO " + str(end_hours) + ":" + str(end_minutes) + "AM,"
 
         message = message.format(timings)
 
@@ -455,91 +387,52 @@ def get_no_of_slots_remaining(slots_booked_on_given_date, start_time, end_time):
     return slots_remaining
 
 
-# check weather free slots available on nearest slots
-def check_for_free_slots_availability(conn, patient_given_appointment_date, org_id, doctor_id, next_slot):
-    real_dict_cursor = get_real_dict_cursor(conn)
-    start_time = next_slot[0]
-    end_time = next_slot[1]
-
-    #: check if any slot is free in available time period
-    appointment_start_time = patient_given_appointment_date + ' ' + start_time
-    slots_booked_on_given_date = fetch_slots_already_booked(real_dict_cursor, appointment_start_time, org_id, doctor_id)
-
-    if len(slots_booked_on_given_date) == 0:
-        # it indicates all slots are free and go for confirmation of appointment
-        return True, appointment_start_time
-    # it indicates few or all slots are booked and go for confirmation of appointment
-    else:
-        slots_remaining = get_no_of_slots_remaining(slots_booked_on_given_date, start_time, end_time)
-
-        # if doctor has appointment at given time but slots are full.check is next slot available
-        if slots_remaining == 0:
-            return False
-        else:
-            return True, appointment_start_time
-
-
 # it returns next nearest slot based on patient given time if available
 def get_nearest_time_slot(conn, sql_parameters_to_get_nearest_slot, patient_given_appointment_date, org_id, doctor_id, uid):
     non_real_dict_cursor = get_non_real_dict_cursor(conn)
     non_real_dict_cursor.execute(query_to_fetch_next_nearest_time_slot, sql_parameters_to_get_nearest_slot)
-    next_slot = non_real_dict_cursor.fetchall()
-
+    next_slot = non_real_dict_cursor.fetchone()
     # next slot is None if not available
     if next_slot is None:
         return slot_not_available_at_given_time_message
     else:
-        available_appointment_times = []
+        real_dict_cursor = get_real_dict_cursor(conn)
+        start_time = next_slot[0]
+        end_time = next_slot[1]
 
-        # check if free slots available
-        for slot in next_slot:
-            is_available, appointment_start_time = check_for_free_slots_availability(conn, patient_given_appointment_date, org_id, doctor_id, slot)
-            if is_available:
-                available_appointment_times.append([appointment_start_time, slot[0], slot[1]])
+        #: check if any slot is free in available time period
+        appointment_start_time = patient_given_appointment_date + ' ' + start_time
+        slots_booked_on_given_date = fetch_slots_already_booked(real_dict_cursor, appointment_start_time, org_id, doctor_id)
 
-        # converting available time slots list as dict
-        insert_time_slots_as_json = {}
-        data = ''
+        if len(slots_booked_on_given_date) == 0:
+            # it indicates all slots are free and go for confirmation of appointment
+            sql_parameters_for_update_time = {'org_id': org_id, 'uid': uid, 'appointment_time': json.dumps({'appointment_date_time': appointment_start_time})}
+            real_dict_cursor.execute(query_to_update_appointment_time, sql_parameters_for_update_time)
+            res_message = slot_not_available_at_given_time_message + next_available_slot_for_given_time_message.format(start_time, end_time)
 
-        if len(available_appointment_times) != 0:
-            for index, time_slot in enumerate(available_appointment_times):
-                insert_time_slots_as_json[str(index+1)] = {"appointment_date_time": time_slot[0], "selected": 0}
-                data = data + next_slot_message.format((index+1), check_for_time_is_am_or_pm(time_slot[1]), check_for_time_is_am_or_pm(time_slot[2]))
-
-            sql_parameters_for_update_time = {'org_id': org_id, 'uid': uid, 'appointment_time': json.dumps(insert_time_slots_as_json)}
-            non_real_dict_cursor.execute(query_to_update_appointment_time, sql_parameters_for_update_time)
-            res_message = slot_not_available_at_given_time_message + next_available_slot_for_given_time_message.format(data)
+        # it indicates few or all slots are booked and go for confirmation of appointment
         else:
-            res_message = slot_not_available_at_given_time_message
+            slots_remaining = get_no_of_slots_remaining(slots_booked_on_given_date, start_time, end_time)
+
+            # if doctor has appointment at given time but slots are full.check is next slot available
+            if slots_remaining == 0:
+                res_message = slot_not_available_at_given_time_message
+            else:
+                sql_parameters_for_update_time = {'org_id': org_id, 'uid': uid, 'appointment_time': json.dumps({'appointment_date_time': appointment_start_time})}
+                real_dict_cursor.execute(query_to_update_appointment_time, sql_parameters_for_update_time)
+                res_message = slot_not_available_at_given_time_message + next_available_slot_for_given_time_message.format(start_time, end_time)
+
         return res_message
-
-
-def check_for_time_is_am_or_pm(time_as_string):
-
-    time_as_string = time_as_string.split(":")
-    hours = int(time_as_string[0])
-    minutes = int(time_as_string[1])
-    # conditions to check the time AM or PM
-    if 12 < hours <= 24:
-        timings = str(hours) + " "
-        if minutes != 0:
-            timings += str(minutes)
-        timings += " P M"
-    else:
-        timings = str(hours) + " "
-        if minutes != 0:
-            timings += str(minutes)
-        timings += " A M"
-
-    return timings
 
 
 #: This function gets executed when node type is book appointment
 #: in given input time,
-#: entered input of 2 or 1 digit is considered as hours
+#: out of 3 or 4 digits,last two numbers are taken as minutes and remaining as hours
 def book_appointment_node(conn, org_id, uid, selected_input_option):
     non_real_dict_cursor = get_non_real_dict_cursor(conn)
     patient_given_appointment_time = selected_input_option
+    hours = 0
+    minutes = 0
     doctor_id = ''
 
     #: checking is time format given by patient is valid or not
@@ -547,21 +440,27 @@ def book_appointment_node(conn, org_id, uid, selected_input_option):
         hours = int(patient_given_appointment_time)
     elif len(patient_given_appointment_time) == 2:
         hours = int(patient_given_appointment_time)
-    else:
+    elif len(patient_given_appointment_time) == 3:
+        hours = int(patient_given_appointment_time[0])
+        minutes = int(patient_given_appointment_time[1:])
+    elif len(patient_given_appointment_time) == 4:
+        hours = int(patient_given_appointment_time[0:2])
+        minutes = int(patient_given_appointment_time[2:])
+    elif len(patient_given_appointment_time) > 4:
         return incorrect_time_format_message
 
     #: check for incorrect hours and minutes
-    if hours > 24:
+    if hours > 24 or minutes > 60:
         return invalid_time_message
 
-    #: 1.fetch the appointment date
+    #: fetch the appointment date
     sql_parameters_for_fetching_patient_entered_date = {'org_id': org_id, 'uid': uid}
     non_real_dict_cursor.execute(query_to_fetch_appointment_date, sql_parameters_for_fetching_patient_entered_date)
     patient_given_appointment_date = non_real_dict_cursor.fetchone()[0]
     patient_given_appointment_date = datetime.datetime.strptime(patient_given_appointment_date, '%d-%m-%Y').strftime(
         '%Y-%m-%d')
 
-    # 2.fetch the doctors list for finding the doctor id that is selected by the user
+    # fetch the doctors list for finding the doctor id that is selected by the user
     non_real_dict_cursor.execute(query_to_fetch_doct_id_for_time_slot, sql_parameters_for_fetching_patient_entered_date)
     doct_list = non_real_dict_cursor.fetchone()[0]
     for doctor in doct_list.values():
@@ -569,19 +468,20 @@ def book_appointment_node(conn, org_id, uid, selected_input_option):
             doctor_id = doctor['doctor_id']
             break
 
-    #: 3.on given date&time, verify is doctor having appointment slot
+    #: case-1:first check weather doctor will be available at the patient_given_appointment_time on patient_given_appointment_date
     appointment_day_name = calendar.day_name[
         datetime.datetime.strptime(patient_given_appointment_date, '%Y-%m-%d').weekday()]
-    patient_given_appointment_time = str(hours)
+    patient_given_appointment_time = str(hours) + ':' + str(minutes)
 
     real_dict_cursor = get_real_dict_cursor(conn)
     sql_parameters_to_check_doctor_available = {'org_id': org_id, 'time': patient_given_appointment_time,
                                                 'day': appointment_day_name, 'doctor_id': doctor_id}
 
     real_dict_cursor.execute(query_to_check_doctor_available, sql_parameters_to_check_doctor_available)
+    # gets start time and end time
     result = real_dict_cursor.fetchall()
 
-    # case1:below condition evaluates to True if doctor having appointment slot
+    # True if doctor available
     if len(result) != 0:
         slot_available_at_given_time = dict(result[0])
         start_time = slot_available_at_given_time['start_tm']
@@ -594,10 +494,9 @@ def book_appointment_node(conn, org_id, uid, selected_input_option):
         #: condition to check is all slots at given time are booked or not
         if len(slots_booked_on_given_date) == 0:
             # it indicates all slots are free and go for confirmation of appointment
-            sql_parameters_for_update_time = {'org_id': org_id, 'uid': uid, 'appointment_time': json.dumps({"1": {"appointment_date_time": appointment_start_time, "selected": 0}})}
+            sql_parameters_for_update_time = {'org_id': org_id, 'uid': uid, 'appointment_time': json.dumps({'appointment_date_time': appointment_start_time})}
             real_dict_cursor.execute(query_to_update_appointment_time, sql_parameters_for_update_time)
-
-            return slot_confirmation_request_message.format(check_for_time_is_am_or_pm(start_time), check_for_time_is_am_or_pm(end_time))
+            return slot_confirmation_request_message.format(start_time, end_time)
 
         # it indicates few or all slots are booked and go for confirmation of appointment
         else:
@@ -607,39 +506,24 @@ def book_appointment_node(conn, org_id, uid, selected_input_option):
             if slots_remaining == 0:
                 message = get_nearest_time_slot(conn, sql_parameters_to_check_doctor_available, patient_given_appointment_date,org_id, doctor_id, uid)
             else:
-                sql_parameters_for_update_time = {'org_id': org_id, 'uid': uid, 'appointment_time': json.dumps({"1": {"appointment_date_time": appointment_start_time, "selected": 0}})}
+                sql_parameters_for_update_time = {'org_id': org_id, 'uid': uid, 'appointment_time': json.dumps({'appointment_date_time': appointment_start_time})}
                 real_dict_cursor.execute(query_to_update_appointment_time, sql_parameters_for_update_time)
-                message = slot_confirmation_request_message.format(check_for_time_is_am_or_pm(start_time), check_for_time_is_am_or_pm(end_time))
+                message = slot_confirmation_request_message.format(start_time, end_time)
 
-    # case2:above condition evaluates to False if doctor not having appointment slot at
     else:
-        # if doctor has no appointment at given time.check for previous and next slot available
+        # if doctor has no appointment at given time.check is next slot available
         message = get_nearest_time_slot(conn, sql_parameters_to_check_doctor_available, patient_given_appointment_date, org_id, doctor_id, uid)
 
     return message
 
 
-#: stores the appointment status in existing appointment trans table if patient confirms the appointment
+#: stores the appointment status in existing appointment trans table if confirmed
 def confirm_appointment_node(conn, org_id, uid, selected_input_option, mobile_no):
     real_dict_cursor = get_real_dict_cursor(conn)
 
-    if (int(selected_input_option) == 1) or (int(selected_input_option) == 2):
-
-        # fetch doctor_id for the selected input
-        non_real_dict_cursor = get_non_real_dict_cursor(conn)
-        sql_parameters_input = {'input': selected_input_option, 'org_id': org_id, 'uid': uid}
-        non_real_dict_cursor.execute(query_to_get_appointment_time, sql_parameters_input)
-        time_slot_selected = non_real_dict_cursor.fetchone()[0]
-
-        if time_slot_selected is None:
-            return invalid_input_message
-
-        # update "selected=1" for the user opted time
-        real_dict_cursor = get_real_dict_cursor(conn)
-        time_slot_selected['selected'] = 1
-
+    if int(selected_input_option) == 1:
         # update is_confirmed column value to true
-        sql_parameters_for_confirmation = {'org_id': org_id, 'uid': uid, 'input': int(selected_input_option), 'selected_time_update': json.dumps(time_slot_selected), 'is_confirmed': True}
+        sql_parameters_for_confirmation = {'org_id': org_id, 'uid': uid, 'is_confirmed': True}
         real_dict_cursor.execute(query_to_update_booking_status_on_confirmation, sql_parameters_for_confirmation)
 
         # step:1 creating the patient id
@@ -652,8 +536,9 @@ def confirm_appointment_node(conn, org_id, uid, selected_input_option, mobile_no
         real_dict_cursor.execute(query_to_fetch_patient_appoi_details, sql_parameters_for_fetching_appoi_deatils)
 
         appointment_details = dict(real_dict_cursor.fetchone())
+
         # user selected appointment date of the patient
-        appointment_dt = appointment_details['timeslot_list'][selected_input_option]['appointment_date_time']
+        appointment_dt = appointment_details['timeslot_list']['appointment_date_time']
 
         # appointment type is taken as 'ivrs' for my operator booked appointments
         appointment_type = "ivrs"
@@ -666,15 +551,15 @@ def confirm_appointment_node(conn, org_id, uid, selected_input_option, mobile_no
         for doctor in appointment_details['doctors_list'].values():
             if doctor['selected'] == 1:
                 doctor_id = doctor['doctor_id']
-                doctor_name = doctor['doctor_nm']
                 break
 
         # insert above appointment details into appointment trans table
         sql_parameters_for_inserting_in_appointment_trans = {'patient_id': patient_id, 'appointment_dt': appointment_dt, 'org_id': org_id, 'doctor_id': doctor_id, 'dept_id': dept_id, 'appointment_type': appointment_type}
         real_dict_cursor.execute(query_update_appointment_details_in_appointment_trans, sql_parameters_for_inserting_in_appointment_trans)
-        return confirmation_message.format(doctor_name, check_for_time_is_am_or_pm(appointment_dt.split(' ')[1]))
 
-    elif int(selected_input_option) == 3:
+        return confirmation_message
+
+    elif int(selected_input_option) == 2:
         sql_parameters_for_cancellation = {'org_id': org_id, 'uid': uid}
         real_dict_cursor.execute(query_to_delete_booking_data_on_cancellation, sql_parameters_for_cancellation)
         return cancellation_message

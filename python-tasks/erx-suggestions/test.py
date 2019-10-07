@@ -1,4 +1,4 @@
-import datetime
+print(str('sdjkbh'))
 
-
-print(str(datetime.datetime.now() + datetime.timedelta(seconds=60)))
+x=6.9
+print(divmod(17,4))

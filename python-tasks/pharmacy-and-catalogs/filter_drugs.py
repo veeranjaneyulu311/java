@@ -24,6 +24,15 @@ logger.setLevel(logging.INFO)
 
 app = Flask(__name__)
 
+#: Queries Used In All Below API'S
+#: API - fetchMatchedAndUnmatchedDrugBrands
+query_to_fetch_count_of_uploaded_brands = "SELECT count(*) from public.drug_brand_comp_ref where created_usr_id = %(emp_id)s and org_id = %(org_id)s and process_status is null"
+
+#: API - checkIsCompareCompleted
+query_to_check_is_running = "SELECT exists (SELECT 1 FROM drug_brand_comp_ref WHERE  process_status = %(status)s and org_id = %(org_id)s LIMIT 1)"
+query_to_check_is_completed = "SELECT exists (SELECT 1 FROM drug_brand_comp_ref WHERE  process_status = %(status)s and org_id = %(org_id)s LIMIT 1)"
+
+
 # command for enabling CORS
 cors = CORS(app, resources={r"*": {"origins": "*"}})
 
@@ -197,17 +206,6 @@ def get_suggestions(request_data, req_url_rule, token):
                 response["matched"].append(result)
             # condition to check given brand name  unmatched with any of brand name in database but at least having approximate matches for suggesting
             elif is_matched == "unmatched":
-                # used single line configuration to avoid following commented lines
-                # suggestions = []
-                # for brands in result:
-                #     # for inserting user details in suggestion tables
-                #     brands.update({'brand_id': unmatched_brand_details['drug_brand_comp_id'].item(),
-                #                    'usr_id': unmatched_brand_details['created_usr_id'].item(),
-                #                    'org_id': unmatched_brand_details['org_id'].item(),
-                #                    'org_grp_id': unmatched_brand_details['org_grp_id'].item()})
-                #
-                #     suggestions.append(tuple(brands.values()))
-                # print("----------", len(suggestions))
                 values = ','.join(cursor_two.mogrify("(%s,%s,%s,%s,%s,%s,%s,%s)", (brand['drug_brand_nm'], brand['dose_nm'], brand['drug_type_nm'], brand['matched_percntg'],unmatched_brand_details['drug_brand_comp_id'].item(), unmatched_brand_details['created_usr_id'].item(), unmatched_brand_details['org_id'].item(), unmatched_brand_details['org_grp_id'].item())).decode('utf-8') for brand in result)
                 cursor_two.execute("INSERT INTO drug_brand_suggest_ref (drug_brand_nm,dose_nm,drug_type_nm,matched_percntg,drug_brand_comp_id,created_usr_id,org_id,org_grp_id) VALUES " + values)
             # condition to check given brand name is not matched with any of brand name in database and not having any approximate match
@@ -249,10 +247,9 @@ def get_suggestions(request_data, req_url_rule, token):
             traceback.format_exc(), request_data)
 
 
-# This API performs comparision operation by creating a new thread in background and returns approximate time required for comparision(in minutes)
-# for comparing, each brand takes 15 seconds approximately
-# payload {"org_id": 1333, "org_grp_id": 2775, "authenticated_user_id": 220190316000001}
-# response
+#: This API starts comparision operation by creating a new thread in background and returns approximate time required for completing the comparision(in minutes)
+#: For comparing, each brand takes it 15 seconds approximately
+#: payload {"org_id": 1333, "org_grp_id": 2775, "authenticated_user_id": 220190316000001}
 @app.route("/fetchMatchedAndUnmatchedDrugBrands", methods=['POST'])
 def fetch_matched_and_unmatched():
     try:
@@ -261,7 +258,7 @@ def fetch_matched_and_unmatched():
         req_url_rule = request.url_rule
         conn = threaded_postgreSQL_pool.getconn()
         cursor = conn.cursor()
-        query_to_fetch_count_of_uploaded_brands = "SELECT count(*) from public.drug_brand_comp_ref where created_usr_id = %(emp_id)s and org_id = %(org_id)s and process_status is null"
+
         # passing used parameters into query
         sql_parameters_for_count = {"emp_id": request_data['authenticated_user_id'], "org_id": request_data['org_id']}
         cursor.execute(query_to_fetch_count_of_uploaded_brands, sql_parameters_for_count)
@@ -291,10 +288,8 @@ def fetch_matched_and_unmatched():
         return jsonify(response), 400
 
 
-# This API checks weather background process completed
-# for comparing, each brand takes 15 seconds approximately
+# This API checks weather background process is completed or not.
 # payload {"org_id": 1333, "org_grp_id": 2775, "authenticated_user_id": 220190316000001}
-# response {"org_id": 1333, "org_grp_id": 2775, "authenticated_user_id": 220190316000001}
 # process_status = running (indicates background process is going on)
 # process_status = completed (indicates background process is going on)
 @app.route("/checkIsCompareCompleted", methods=['POST'])
@@ -302,8 +297,6 @@ def check_is_comparison_completed():
     try:
         # get the payload from given request
         request_data = request.get_json()
-        query_to_check_is_running = "SELECT exists (SELECT 1 FROM drug_brand_comp_ref WHERE  process_status = %(status)s and org_id = %(org_id)s LIMIT 1)"
-        query_to_check_is_completed = "SELECT exists (SELECT 1 FROM drug_brand_comp_ref WHERE  process_status = %(status)s and org_id = %(org_id)s LIMIT 1)"
         conn = threaded_postgreSQL_pool.getconn()
         cursor = conn.cursor()
         sql_parameters = {"status": "running", "org_id": request_data['org_id']}

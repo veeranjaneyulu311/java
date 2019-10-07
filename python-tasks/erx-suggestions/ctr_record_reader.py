@@ -1,0 +1,204 @@
+import json
+import logging
+import requests
+import os
+import boto3
+from botocore.exceptions import ClientError
+from requests.exceptions import HTTPError
+import urllib
+import uuid
+import phonenumbers
+import time
+import sys
+
+logger = logging.getLogger("ctr_record_reader")
+log_level = os.environ['LOG_LEVEL']
+logger.setLevel(log_level)
+conversations_url = os.environ['conversations_url']
+region = os.environ['region']
+table = os.environ['tablename']
+auth_key = os.environ['auth_key']
+user_id = os.environ['user_id']
+source_s3 = os.environ['source_bucket']
+s3_client = boto3.client('s3', region_name=region)
+db_client = boto3.client('dynamodb', region_name=region)
+
+
+def get_filename(full_s3_path):
+    logger.debug(f'Getting filename from:::{full_s3_path}')
+    if full_s3_path is not None:
+        split_path = full_s3_path.split('/')
+        return urllib.parse.unquote(split_path[-1:][0])
+    logger.fatal(f'full s3 path is None object')
+    return None
+
+
+def download_file(s3_bucket, full_s3_path, filename):
+    logger.debug(f'Downloading file:::{full_s3_path}')
+    logger.debug(f'Souce_s3 bucket:::{s3_bucket}')
+    try:
+        s3_client.download_file(s3_bucket, full_s3_path, f'/tmp/{filename}')
+        logger.info(f'Successfully downloaded file:::{filename} to tmp/ directory')
+        return True
+    except ClientError as error:
+        logger.warning(f'Unable to download file:::{full_s3_path}, skipping')
+        logger.warning(f'Exception:::{error}')
+        return False
+
+
+def get_conversation(universal_identifier):
+    try:
+        response = requests.get(
+            f'{conversations_url}{universal_identifier}',
+            headers={
+                'Authorization': f'Intuit_APIKey intuit_apikey={auth_key},intuit_apkey_version=1.0:,intuit_userid={user_id}',
+                'Content-Type': 'application/json',
+                'intuit_locale': 'en_US',
+                'intuit_originatingip': '1.1.1.1'
+            }
+        )
+        if response.status_code == 400:
+            logger.warning(f'No conversation created for conversationId:::{universal_identifier}')
+            return 'NO_CONVERSATION'
+        response.raise_for_status()
+        logger.debug(f'response:::{response}')
+        return response
+    except HTTPError as http_err:
+        logger.error(f'HTTP error occurred: {http_err}')
+        return None
+    except Exception as err:
+        logger.error(f'Other error occurred: {err}')
+        return None
+
+
+def process_attributes(item, data, response, universal_identifier):
+    phone_number = '+10000000000'
+    if response == 'NO_CONVERSATION':
+        logger.info(f'No conversations for universalId:::{universal_identifier}')
+        if 'intuPhoneNumber' in data['Attributes']:
+            phone_number = data['Attributes']['intuPhoneNumber']
+        if 'intuFirstName' in data['Attributes'] and 'intuLastName' in data['Attributes']:
+            item['customerName'] = {'S': data['Attributes']['intuFirstName'] + ' ' + data['Attributes']['intuLastName']}
+    else:
+        response = response.json()
+        logger.debug(f'conversations_response={response}')
+        if 'participant' in response:
+            customer_name = ''
+            if 'fName' in response['participant']:
+                customer_name += f"{response['participant']['fName']} "
+            if 'lName' in response['participant']:
+                customer_name += response['participant']['lName']
+
+            item['customerName'] = {'S': customer_name.lower()}
+            item['customerNameAsEntered'] = {'S': customer_name}
+
+            if 'telephone' in response['participant']:
+                phone_number = response['participant']['telephone']
+
+        if 'subject' in response:
+            item['description'] = {'S': response['subject']}
+
+    if phone_number[:1] != "+":
+        phone_number = "+1" + phone_number
+
+    logger.info(f'phone_number={phone_number}')
+    logger.info(f'item={item}')
+    try:
+        phone_number = phonenumbers.parse(phone_number, None)
+        item['phone'] = {'S': str(phonenumbers.format_number(phone_number, phonenumbers.PhoneNumberFormat.E164))}
+    except:
+        exc_type, value, exc_traceback = sys.exc_info()
+        logger.warning(f"Unable to parse phone number:::{exc_type}:::{value}:::{exc_traceback}")
+        item['phone'] = {'S': '+10000000000'}
+
+    logger.debug(f"customerName:::{item['customerName']}, phone:::{item['phone']}, description:::{item['description']}, disposition:::{item['disposition']}")
+    return item
+
+
+def process_json_data(data):
+    item = {}
+    if 'Agent' in data and data['Agent'] != None:
+        logger.info(f"Agent:::{data['Agent']['Username']}")
+        item['uuid'] = {'S': str(uuid.uuid1())}
+        item['agentId'] = {'S': data['Agent']['Username']}
+        item['date'] = {'S': data['ConnectedToSystemTimestamp']}
+
+        disposition = 'unknown'
+        duration_in_seconds = data['Agent']['AgentInteractionDuration']
+        if duration_in_seconds < 10:
+            logger.info('Call too short to have been connected, ignoring')
+            return
+        elif duration_in_seconds < 80:
+            logger.info(
+                f'Call was {duration_in_seconds} seconds long, more than likely agent left voicemail, so setting disposition to LEFT_VOICEMAIL')
+            disposition = 'LEFT_VOICEMAIL'
+
+        # TODO
+        item['disposition'] = {'S': disposition}
+        item['duration'] = {'S': str(time.strftime('%Hhr %Mmin %Ss', time.gmtime(duration_in_seconds)))}
+
+        # Setting default values
+        item['customerName'] = {'S': 'NONE'}
+        item['customerNameAsEntered'] = {'S': 'NONE'}
+        item['description'] = {'S': 'NONE'}
+
+        universal_identifier = data['Attributes']['intuUniversalIdentifier']
+        item['type'] = {'S': data['InitiationMethod']}
+        logger.info(f'intuUniversalIdentifier:::{universal_identifier}')
+
+        response = get_conversation(universal_identifier)
+        if response is None:
+            logger.error(f'conversations_response:::{response}')
+            return
+
+        item = process_attributes(item, data, response, universal_identifier)
+        logger.debug(f'item:::{item}')
+
+        try:
+            resp = db_client.put_item(
+                TableName=table,
+                Item=item
+            )
+            logger.debug(f'dynamodb put_item response:::{resp}')
+            return item
+        except ClientError as error:
+            logger.error(f'Exception when putting item in dynamodb table:::{error}')
+            return str(error)
+    else:
+        logger.debug(f'line:::{data}')
+        logger.warning(f'No agent data found in ctr record, customer not connected to agent')
+        return False
+
+
+def handler(s3event, context):
+    logger.debug(s3event)
+    try:
+        for record in s3event['Records']:
+            full_s3_path = record['s3']['object']['key']
+            filename = get_filename(full_s3_path)
+            if filename is None:
+                logger.fatal(f'filename is None, invalid file')
+                continue
+
+            file_downloaded = download_file(source_s3, full_s3_path, filename)
+            if not file_downloaded:
+                logger.warning(f'Unable to download file, skipping')
+                continue
+            with open(f'/tmp/{filename}') as fp:
+                line = fp.readline().strip()
+                # logger.debug(f'line:::{line}')
+
+                while line:
+                    file_data = line.replace("}{", "},{")
+                    file_data = "[" + file_data + "]"
+                    json_data = json.loads(file_data)
+                    # logger.debug(json_data)
+
+                    for data in json_data:
+                        logger.debug(f'data={data}')
+                        processed_data = process_json_data(data)
+                        logger.debug(f"processed_data={processed_data}")
+
+                    line = fp.readline().strip()
+    except Exception as err:
+        logger.error(f"Exception thrown:::{err}")

@@ -1,0 +1,46 @@
+2019-09-13 11:10:20,519 - InventoryDrugsMatchingLogging - INFO - {'transactionId':882FFED1-3FBD-403B-9D45-C05399DF40E9,'systemName':VEERANJANEYULU,'moduleName':'InventoryExcelUpload','timeStamp':2019-09-13 11:10:20,'apiName':/fetchMatchedAndUnmatchedDrugBrands,'status':'START','payLoad':[{'orgId': 1333, 'orgGrpId': 2775, 'authenticatedUserId': 220190316000001}]}
+2019-09-13 11:10:20,615 - InventoryDrugsMatchingLogging - INFO - {'transactionId':882FFED1-3FBD-403B-9D45-C05399DF40E9,'systemName':VEERANJANEYULU,'moduleName':'InventoryExcelUpload','timeStamp':2019-09-13 11:10:20,'apiName':/fetchMatchedAndUnmatchedDrugBrands,'status':'ERROR','exception':Traceback (most recent call last):
+  File "inventory_excel_upload.py", line 310, in fetch_matched_and_unmatched
+    request_data = {'authenticated_user_id': input_request_data['createdUsrId'], 'org_id': input_request_data['orgId']}
+KeyError: 'createdUsrId'
+,'payLoad':[{'orgId': 1333, 'orgGrpId': 2775, 'authenticatedUserId': 220190316000001}]}
+2019-09-13 11:11:32,483 - InventoryDrugsMatchingLogging - INFO - {'transactionId':09AB1676-E967-43E1-B004-4B258FB245F5,'systemName':VEERANJANEYULU,'moduleName':'InventoryExcelUpload','timeStamp':2019-09-13 11:11:32,'apiName':/fetchMatchedAndUnmatchedDrugBrands,'status':'START','payLoad':[{'orgId': 1333, 'orgGrpId': 2775, 'authenticatedUserId': 220190316000001}]}
+2019-09-13 11:11:32,487 - InventoryDrugsMatchingLogging - INFO - {'transactionId':09AB1676-E967-43E1-B004-4B258FB245F5,'systemName':VEERANJANEYULU,'moduleName':'InventoryExcelUpload','timeStamp':2019-09-13 11:11:32,'apiName':/fetchMatchedAndUnmatchedDrugBrands,'status':'ERROR','exception':Traceback (most recent call last):
+  File "inventory_excel_upload.py", line 310, in fetch_matched_and_unmatched
+    request_data = {'authenticated_user_id': input_request_data['createdUsrId'], 'org_id': input_request_data['orgId']}
+KeyError: 'createdUsrId'
+,'payLoad':[{'orgId': 1333, 'orgGrpId': 2775, 'authenticatedUserId': 220190316000001}]}
+2019-09-13 17:05:10,684 - InventoryDrugsMatchingLogging - INFO - {'transactionId':6552F88F-160A-4BFE-B0C7-48386DB8BA7A,'systemName':VEERANJANEYULU,'moduleName':'InventoryExcelUpload','timeStamp':2019-09-13 17:05:10,'apiName':/fetchAllDrugBrands,'status':'START','payLoad':[{'orgId': 2272, 'orgGrpId': 2775, 'createdUsrId': 120171221000001}]}
+2019-09-13 17:06:35,289 - InventoryDrugsMatchingLogging - INFO - {'transactionId':5B2556F4-7EAA-4530-9B80-9F8424A5747C,'systemName':VEERANJANEYULU,'moduleName':'InventoryExcelUpload','timeStamp':2019-09-13 17:06:35,'apiName':/fetchAllDrugBrands,'status':'START','payLoad':[{'orgId': 2272, 'orgGrpId': 2775, 'createdUsrId': 120171221000001}]}
+2019-09-13 17:07:35,774 - InventoryDrugsMatchingLogging - INFO - {'transactionId':466D63DE-5F9F-4B20-9367-B8D0E3DDD8BA,'systemName':VEERANJANEYULU,'moduleName':'InventoryExcelUpload','timeStamp':2019-09-13 17:07:35,'apiName':/fetchAllDrugBrands,'status':'START','payLoad':[{'orgId': 2272, 'orgGrpId': 2775, 'createdUsrId': 120171221000001}]}
+2019-09-13 17:07:35,798 - InventoryDrugsMatchingLogging - INFO - {'transactionId':466D63DE-5F9F-4B20-9367-B8D0E3DDD8BA,'systemName':VEERANJANEYULU,'moduleName':'InventoryExcelUpload','timeStamp':2019-09-13 17:07:35,'apiName':/fetchAllDrugBrands,'status':'ERROR','exception':Traceback (most recent call last):
+  File "inventory_excel_upload.py", line 461, in fetch_all_brands
+    return jsonify(response), 200
+  File "C:\Users\Drucare Pvt Ltd\AppData\Local\Programs\Python\Python37\lib\site-packages\flask\json\__init__.py", line 321, in jsonify
+    dumps(data, indent=indent, separators=separators) + '\n',
+  File "C:\Users\Drucare Pvt Ltd\AppData\Local\Programs\Python\Python37\lib\site-packages\flask\json\__init__.py", line 179, in dumps
+    rv = _json.dumps(obj, **kwargs)
+  File "C:\Users\Drucare Pvt Ltd\AppData\Local\Programs\Python\Python37\lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+  File "C:\Users\Drucare Pvt Ltd\AppData\Local\Programs\Python\Python37\lib\json\encoder.py", line 201, in encode
+    chunks = list(chunks)
+  File "C:\Users\Drucare Pvt Ltd\AppData\Local\Programs\Python\Python37\lib\json\encoder.py", line 431, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "C:\Users\Drucare Pvt Ltd\AppData\Local\Programs\Python\Python37\lib\json\encoder.py", line 405, in _iterencode_dict
+    yield from chunks
+  File "C:\Users\Drucare Pvt Ltd\AppData\Local\Programs\Python\Python37\lib\json\encoder.py", line 325, in _iterencode_list
+    yield from chunks
+  File "C:\Users\Drucare Pvt Ltd\AppData\Local\Programs\Python\Python37\lib\json\encoder.py", line 405, in _iterencode_dict
+    yield from chunks
+  File "C:\Users\Drucare Pvt Ltd\AppData\Local\Programs\Python\Python37\lib\json\encoder.py", line 438, in _iterencode
+    o = _default(o)
+  File "C:\Users\Drucare Pvt Ltd\AppData\Local\Programs\Python\Python37\lib\site-packages\flask\json\__init__.py", line 81, in default
+    return _json.JSONEncoder.default(self, o)
+  File "C:\Users\Drucare Pvt Ltd\AppData\Local\Programs\Python\Python37\lib\json\encoder.py", line 179, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type Decimal is not JSON serializable
+,'payLoad':[{'orgId': 2272, 'orgGrpId': 2775, 'createdUsrId': 120171221000001}]}
+2019-09-13 17:10:49,307 - InventoryDrugsMatchingLogging - INFO - {'transactionId':FE36D501-F997-4E6B-81D5-404F1D95DD3B,'systemName':VEERANJANEYULU,'moduleName':'InventoryExcelUpload','timeStamp':2019-09-13 17:10:49,'apiName':/fetchAllDrugBrands,'status':'START','payLoad':[{'orgId': 2272, 'orgGrpId': 2775, 'createdUsrId': 120171221000001}]}
+2019-09-13 17:10:49,327 - InventoryDrugsMatchingLogging - INFO - {'transactionId':FE36D501-F997-4E6B-81D5-404F1D95DD3B,'systemName':VEERANJANEYULU,'moduleName':'InventoryExcelUpload','timeStamp':2019-09-13 17:10:49,'apiName':/fetchAllDrugBrands,'status':'END','payLoad':[{'orgId': 2272, 'orgGrpId': 2775, 'createdUsrId': 120171221000001}]}
+2019-09-13 18:19:51,979 - InventoryDrugsMatchingLogging - INFO - {'transactionId':6CE3CEAC-DC86-4AC6-8956-DEE976B78434,'systemName':VEERANJANEYULU,'moduleName':'InventoryExcelUpload','timeStamp':2019-09-13 18:19:51,'apiName':None,'status':'START','payLoad':[None]}
+2019-09-13 18:20:09,557 - InventoryDrugsMatchingLogging - INFO - {'transactionId':79D74A61-3F8A-4868-AE61-10E0AD60D68F,'systemName':VEERANJANEYULU,'moduleName':'InventoryExcelUpload','timeStamp':2019-09-13 18:20:09,'apiName':None,'status':'START','payLoad':[None]}

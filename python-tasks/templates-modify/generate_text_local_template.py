@@ -46,11 +46,11 @@ def send_sms(apikey, numbers, sender, message):
 # 34,49
 # for sending sms
 resp = send_sms('bUhKBqSsd5E-Wxx2thIMTfjxgCZzgSQZWxdZnJZdB6', '8500036890',
-               'DRUCRE', 'Hello alpha%nPlease Click on 192.168.1.101:8080/#/dru/signup/provider?key=forgotpasswordlink&token=XRA864NQ&userName=alpha_247 to reset your Drucare Account password%n')
+               'DRUCRE', 'Dear veera,%n\nYou are now registered with health. Please use Hospital ID: P00001234 for all future communication.')
 print(resp)
+
 
 
 # generate_template()
 
 
-# print(len("imgadmin,srinivas_t,thehulk,receptionist,andrew,imgdoctor,generalnurse,opthdoct,opthdoctor,imgtechnician,harvy123,pedidoctor,surya_s,anvesh_thomas,anirudh_sg,mywarehouse,warehouse,signup_test,chaitanya_dru,marvel,branchadmin,hanuvemu"))
