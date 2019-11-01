@@ -1,0 +1,82 @@
+Invenory Excel upload:
+======================
+Credentials for Aus DEV:
+IP      :  192.168.1.111
+port   :  5433
+database : postgres
+user  :  drucare_appuser
+pwd  :  Sup@care$3388
+
+Tables:
+1.public.drug_brand_info_ref
+2.pharmacy.temp_drug_inventory_upload_trans
+3.pharmacy.drug_brand_suggest_ref
+
+List of changes done compared to pharmacy excel upload:
+1.change public.drug_brand_ref ===> public.drug_brand_info_ref and add drug_brand_id
+2.chnage public.drug_brand_comp_ref ==> pharmacy.temp_drug_inventory_upload_trans
+3.rename column drug_brand_comp_id to temp_drug_inventory_id
+4.update brand id for exact matched drugs in pharmacy.temp_drug_inventory_upload_trans
+5.update brand id with selected suggestion in pharmacy.temp_drug_inventory_upload_trans
+
+
+
+My Operator Task:
+=================
+Tables:
+1.public.myoperator_appointment_temp_trans
+2.public.myoperator_node_org_ref
+
+v1:
+===
+normal flow
+
+v2:
+===
+jumping to previous node
+
+v3:
+jumping to Same nodes:
+=====================
+Departments:
+------------
+
+Doctors:
+--------
+->options other than previously listed is invalid
+
+Days:
+----
+->options other than previously listed is invalid
+->doctor not have any appointment days [pending]
+
+
+Time-slots conditions:
+----------------------
+->length should be 3[1-day,2-month] or 4[2-day,2-month] digits
+->entered day(>31) or month(>12) should be valid
+->entered date should be in dates list returned from previous node
+->doctor not have any slots on given date 
+
+Book-appointment:
+-----------------
+->incorrect hours
+->both previous,next slots are not available
+->slots completed in previous,next time slots
+
+
+Confirmation Node conditions:
+----------------------------
+->user should not enter other than 1 or 2 or 3
+->if there is only one time slot i.e previous or next or exact, user should enter either 1 or 3
+
+
+version-4 for myoperator:
+-------------------------
+1) Blocking a caller for false appointments . Blocking for time period. Minimum bill would come for hitting the number and call. 
+There is provision to handle block a caller in the dashboard. But it has to be handled manually.
+2) Deleting old finished appointments data and junk data arised due to non finished call flow.
+3) Alerting at threshold's of an organizational usage.
+4) Jump Node -> Jump the node if he places a wrong input. Jump may be choosen by a caller or our system.
+
+

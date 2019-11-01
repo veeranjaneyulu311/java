@@ -1,0 +1,61 @@
+*using in erx but getting large size [490mb]
+
+FROM python:3.7-alpine
+
+VOLUME /logs
+COPY . /app
+WORKDIR /app
+
+RUN pip install --upgrade pip
+RUN apk add --no-cache python3-dev postgresql-libs libstdc++ && \
+    apk add --no-cache --virtual .build-deps g++ postgresql-dev && \
+    ln -s /usr/include/locale.h /usr/include/xlocale.h && \
+    pip3 install -r requirements.txt && \
+    apk --purge del .build-deps
+
+
+EXPOSE 8064
+
+
+ENTRYPOINT ["sh", "-c","/app/start.sh" ]
+----------------------------------------------------------------------------
+* reduced size[327MB]
+
+FROM python:3.7-alpine
+
+VOLUME /logs
+COPY . /app
+WORKDIR /app
+
+RUN pip install --upgrade pip
+RUN apk add --no-cache postgresql-libs libstdc++ && \
+    apk add --no-cache --virtual .build-deps g++ postgresql-dev && \
+    ln -s /usr/include/locale.h /usr/include/xlocale.h && \
+    python3 -m pip install -r requirements.txt --no-cache-dir && \
+    apk --purge del .build-deps
+
+
+EXPOSE 8064
+
+ENTRYPOINT ["sh", "-c","/app/start.sh" ]
+
+
+-------------------------------------------------------
+
+1.removed g++ and added gcc musl-dev
+  gcc: error trying to exec 'cc1plus': execvp: No such file or directory
+  error: command 'gcc' failed with exit status 1
+  ----------------------------------------
+  ERROR: Failed building wheel for pandas
+
+2.removed---python3-dev,libstdc++
+ImportError: Error loading shared library libstdc++.so.6: No such file or directory (needed by /usr/local/lib/python3.7/site-packages/pandas/_libs/window.cpython-37m-x86_64-linux-gnu.so)
+
+added --- --no-cache-dir
+
+
+REPOSITORY                                                                 TAG                 IMAGE ID            CREATED             SIZE
+erxtesttwo                                                                 latest              7c5d1b09fb11        38 minutes ago      325MB
+erxtest                                                                    latest              eb692264c345        2 hours ago         400MB
+329338480233.dkr.ecr.ap-south-1.amazonaws.com/in-prod-erx-ml               latest              a18c625c5d64        21 hours ago        492MB
+

@@ -1,0 +1,167 @@
+{
+    "global": {
+        "email": "ఇ మెయిల్ ఐడి",
+        "mobileNumber": "మొబైల్ నంబర్",
+        "gstNumber": "జిఎస్టి నంబర్",
+        "serviceTaxNumber": "Service Tax Number",
+        "tanNumber": "TAN నంబర్",
+        "userName": "యూజర్ పేరు",
+        "address": {
+            "address1": "చిరునామా లైన్ ఒకటి",
+            "address2": "చిరునామా లైన్ రెండు",
+            "pinCode": "పిన్ కోడ్",
+            "city": "CITY",
+            "district": "జిల్లా",
+            "state": "రాష్ట్రము",
+            "country": "దేశం",
+            "webSiteAddress": "WEBSITE ADDRESS"
+        },
+        "org": {
+            "organizationName": "సంస్థ పేరు",
+            "organizationType": "సంస్థ రకము",
+            "registerNumber": "Register Number",
+            "rocRegistrationNo": "ROC REG NO.",
+            "dmHoNumber": "DM & HO NUMBER",
+            "rohiniNumber": "రోహిణీ నంబర్",
+            "noOfBeds": "బేడ్స్ యొక్క సంఖ్యలు",
+            "bedsText": "Beds",
+            "ownerFullName": "యజమాని పూర్తి పేరు"
+        },
+        "buttons": {
+            "submit": "సమర్పించండి",
+            "submitAndClose": "సమర్పించండి & మూసివేయి",
+            "submitAndAddNew": "సమర్పించు & క్రొత్తది జోడించండి",
+            "reset": "రీసెట్",
+            "cancel": "cancel"
+        },
+        "errorMessages": {
+            "email": {
+                "required": "Email ID is required",
+                "maxLength": "Email ID is too long",
+                "minLength": "Email ID is too small",
+                "pattern": "Please enter valid Email ID"
+            },
+            "owner": {
+                "required": "Owner Full Name is required",
+                "maxLength": "Owner Full Name is too long",
+                "minLength": "Owner Full Name is too small",
+                "pattern": "Only alphabets are allowed"
+            },
+            "userName": {
+                "required": "Username is required",
+                "maxLength": "Username is too long",
+                "minLength": "Username is too small",
+                "pattern": "Spaces and uppercase letters are not allowed"
+            },
+            "mobile": {
+                "required": "Mobile Number is required",
+                "maxLength": "Mobile Number is too long",
+                "minLength": "Mobile Number is too small",
+                "pattern": "Only numbers are allowed"
+            },
+            "gst": {
+                "required": "Gst Number is required",
+                "maxLength": "GST Number is too long",
+                "minLength": "GST Number is too small",
+                "pattern": "Enter valid GST Number"
+            },
+            "organization": {
+                "required": "Organization name is required",
+                "maxLength": "Organization name is too long",
+                "minLength": "Organization name is too small",
+                "pattern": "Either Alphabets or Numbers are allowed"
+            },
+            "address1": {
+                "required": "Address Line 1 is required",
+                "maxLength": "Address Line 1 is too long",
+                "minLength": "Address Line 1 is too small"
+            },
+            "address2": {
+                "required": "Address Line 2 is required",
+                "maxLength": "Address Line 2 is too long",
+                "minLength": "Address Line 2 is too small"
+            },
+            "pincode": {
+                "required": "Pincode is required",
+                "maxLength": "Pincode is too long",
+                "minLength": "Pincode is too small",
+                "pattern": "Please enter valid Pincode"
+            },
+            "country": {
+                "required": "Country is required",
+                "maxLength": "Country name is too long",
+                "minLength": "Country name is too small",
+                "pattern": "Only alphabets are allowed"
+            },
+            "state": {
+                "required": "State is required",
+                "maxLength": "State name is too long",
+                "minLength": "State name is too small",
+                "pattern": "Only alphabets are allowed"
+            },
+            "city": {
+                "required": "City is required",
+                "maxLength": "City name is too long",
+                "minLength": "City name is too small",
+                "pattern": "Only alphabets are allowed"
+            },
+            "district": {
+                "required": "District is required",
+                "maxLength": "District name is too long",
+                "minLength": "District name is too small",
+                "pattern": "Only alphabets are allowed"
+            },
+            "website": {
+                "required": "Website Address is required",
+                "maxLength": "Website Address is too long",
+                "minLength": "Website Address is too small",
+                "pattern": "Enter valid web Address format"
+            },
+            "rocRegistration": {
+                "required": "ROC Registration Number is required",
+                "maxLength": "ROC Registration Number is too long",
+                "minLength": "ROC Registration Number is too small",
+                "pattern": "Spaces are not allowed, use only upper case letters and numbers"
+            },
+            "dmHoNumber": {
+                "required": "DM & HO Number is required",
+                "maxLength": "DM & HO Number is too large",
+                "minLength": "DM & HO Number is too small",
+                "pattern": "Please enter valid DM & HO Number"
+            },
+            "rohini": {
+                "required": "Rohini Number is required",
+                "maxLength": "Rohini Number is too large",
+                "minLength": "Rohini Number is too small",
+                "pattern": "Please enter valid Rohini Number"
+            },
+            "tanNumber": {
+                "required": "TAN Number is required",
+                "maxLength": "TAN Number is too large",
+                "minLength": "TAN Number is too small",
+                "pattern": "Spaces are not allowed,use only upper case letters and numbers"
+            },
+            "onlyDecimalsAllowed": "Spaces are not allowed,only decimal numbers"
+        }
+    },
+    "admin": {
+        "branchManagement": {
+            "screenHeader": "శాఖ నిర్వహణ",
+            "branchListNoDataText": "Please Add the organization branches.",
+            "createLabel": "కొత్త బ్రాంచ్",
+            "isAccreditation": "Is Accreditation",
+            "accreditationBody": "Accreditation Body",
+            "accreditationBodyUrl": "Accreditation Body Url",
+            "accreditationStandard": "Accreditation Standard",
+            "accreditationReference": "Accreditation Reference",
+            "confidenceLevel": "Confidence Level",
+            "branchDetails": "సంస్థ వివరాలు",
+            "beds": "Beds",
+            "errorMessages": {
+                "twoMandatory": "Any two of the following fields are mandatory...!",
+                "organizationType": "Organization Type is required",
+                "noOfBedsRequired": "No.of Beds is required"
+            }
+        }
+    }
+}

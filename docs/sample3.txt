@@ -1,0 +1,11 @@
+    if (os.path.isfile('{}/{}/{}'.format(docker_directory,jar_directory,jar_names))):
+        change_dirctory()
+        print("copying the '{}' :: [{}] from '{}/{}' to '{}' located in the Jenkins Server of IP :: '{}'".format(jar_names,os.path.getsize(jar_names),docker_directory,                  jar_directory_for_lab,destination_deploy_directory,host_address))
+
+        moving_jar_command= "scp"+" -P "+port_numb+" "+jar_names+" "+host_name+" @ "+host_address+":"+destination_deploy_directory
+        print(moving_jar_command)
+        sp.call(moving_jar_command,shell=True)
+        print ("File(s) Transferred successfully!!!!!!!")
+    else:
+        print("No Such File Exists in '{}/{}'".format(docker_directory,jar_directory_for_lab))
+

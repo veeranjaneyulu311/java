@@ -1,0 +1,31 @@
+========================================================================================================================================================================
+ Package                                   Arch                                Version                                  Repository                                 Size
+========================================================================================================================================================================
+Installing:
+ ius-release                               noarch                              2-1.el7.ius                              /ius-release                              4.5 k
+Installing for dependencies:
+ epel-release                              noarch                              7-11                                     extras                                     15 k
+
+Transaction Summary
+========================================================================================================================================================================
+Install  1 Package (+1 Dependent package)
+
+Total size: 19 k
+Total download size: 15 k
+Installed size: 29 k
+Downloading packages:
+epel-release-7-11.noarch.rpm                                                                                                                     |  15 kB  00:00:00
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : epel-release-7-11.noarch                                                                                                                             1/2
+  Installing : ius-release-2-1.el7.ius.noarch                                                                                                                       2/2
+  Verifying  : ius-release-2-1.el7.ius.noarch                                                                                                                       1/2
+  Verifying  : epel-release-7-11.noarch                                                                                                                             2/2
+
+Installed:
+  ius-release.noarch 0:2-1.el7.ius
+
+Dependency Installed:
+  epel-release.noarch 0:7-11

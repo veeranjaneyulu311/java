@@ -1,0 +1,110 @@
+1.change public.drug_brand_ref ===> public.drug_brand_info_ref and add drug_brand_id
+2.chnage public.drug_brand_comp_ref ==> pharmacy.temp_drug_inventory_upload_trans
+3.rename column drug_brand_comp_id to temp_drug_inventory_id
+4.update brand id for exact matched drugs in pharmacy.temp_drug_inventory_upload_trans
+5.update brand id with selected suggestion in pharmacy.temp_drug_inventory_upload_trans
+
+
+
+update pharmacy.temp_drug_inventory_upload_trans set process_status=null;
+update pharmacy.temp_drug_inventory_upload_trans set is_matched=null;
+
+delete from pharmacy.drug_brand_suggest_ref;
+
+SELECT * from pharmacy.drug_brand_suggest_ref
+select * from public.drug_brand_info_ref where drug_brand_nm='Candid'
+
+
+
+---
+
+
+INSERT INTO pharmacy.temp_drug_inventory_upload_trans(
+	 drug_brand_nm, dose_nm, drug_type_nm, created_usr_id, org_id, org_grp_id)
+	VALUES ('Candid','50mg','Ointment',220190316000001,1333,2775);
+	952276
+update pharmacy.temp_drug_inventory_upload_trans set drug_brand_nm='Candid' where drug_type_nm='Ointment'
+
+SELECT temp_drug_inventory_id, drug_brand_nm, dose_nm, drug_type_nm, created_usr_id, org_id, org_grp_id, description, related_nm, is_matched, store_id, drug_brand_id, brand_mrp, cost_price, available_qty, strip_keeping_unit, package_keeping_unit, batch_no, expire_date, barcode, category_type, unit_amt, vendor_id, inventory_type_id, pharmacy_type_id, inventory_ind, upload_remarks, process_status, hsn_code, tax_percntg
+	FROM pharmacy.temp_drug_inventory_upload_trans;
+	
+	
+	
+	, , , , , , , , , , , , , , , , , , , , , , , , , , , , , 
+	
+	row['temp_drug_inventory_id'],row['drug_brand_nm'],row['dose_nm'],row['drug_type_nm'],row['created_usr_id'],row['org_grp_id'],row['description'],row['related_nm'],row['is_matched'],row['store_id'],row['drug_type_nm'],row['drug_brand_id'],row['brand_mrp'],row['cost_price'],row['available_qty'],row['strip_keeping_unit'],row['package_keeping_unit'],row['batch_no'],row['expire_date'],row['barcode'],row['category_type'],row['unit_amt'],row['vendor_id'],row['inventory_type_id'],row['pharmacy_type_id'],row['inventory_ind'],row['upload_remarks'],row['process_status'],row['hsn_code'],row['tax_percntg']
+	
+	
+	all_brands_list = [dict(zip(('tempDrugInventoryId', 'drugBrandNm', 'doseNm', 'drugTypeNm', 'createdUsrId', 'orgId', 'orgGrpId', 'description', 'relatedNm', 'isMatched', 'storeId', 'drugBrandId', 'brandMrp', 'costPrice', 'availableQty', 'stripKeepingUnit', 'packageKeepingUnit', 'batchNo', 'expireDate', 'barcode', 'categoryType', 'unitAmt', 'vendorId', 'inventoryTypeId', 'pharmacyTypeId', 'inventoryInd', 'uploadRemarks', 'processStatus', 'hsnCode', 'taxPercntg'), (row['temp_drug_inventory_id'], row['drug_brand_nm'], row['dose_nm'], row['drug_type_nm'], row['created_usr_id'], \
+            row['org_grp_id'], row['description'], row['related_nm'], row['is_matched'], row['store_id'], row[
+                'drug_type_nm'], row['drug_brand_id'], row['brand_mrp'], row['cost_price'], row['available_qty'], row[
+                'strip_keeping_unit'], row['package_keeping_unit'], row['batch_no'], row['expire_date'], row['barcode'], \
+            row['category_type'], row['unit_amt'], row['vendor_id'], row['inventory_type_id'], row['pharmacy_type_id'], row[
+                'inventory_ind'], row['upload_remarks'], row['process_status'], row['hsn_code'], row['tax_percntg']))) for row in all_brands_list]
+----------------------------------------------------------------------------------
+
+
+single organization single clinic
+
+departments
+timings
+book appointment
+confirm appointment
+
+checking designation and employee name:
+--------------------------------------
+
+select d.designation,c.first_nm from organisation_employee_xref a 
+join employee_designation_xref b on a.emp_id=b.emp_id 
+join employees_info_ref c on c.emp_id=b.emp_id 
+join designation_ref d on d.designation_id=b.designation_id
+where 
+b.designation_id=1 
+and 
+a.isactive=true and a.org_id=1333
+
+emp and his mapped departments and unmapping:
+select * from employee_dept_xref where emp_id=220190316000002
+update employee_dept_xref set isactive=false where dept_id=23
+
+
+
+
+
+
+---------------------------
+
+SELECT * FROM public.myoperator_appointment_temp_trans;
+
+
+delete from public.myoperator_appointment_temp_trans where is_booked is null
+
+
+select * from employee_dept_xref where emp_id=220190316000002
+
+update employee_dept_xref set isactive=false where dept_id=23
+
+select d.designation,c.first_nm from organisation_employee_xref a 
+join employee_designation_xref b on a.emp_id=b.emp_id 
+join employees_info_ref c on c.emp_id=b.emp_id 
+join designation_ref d on d.designation_id=b.designation_id
+where 
+b.designation_id=1 
+and 
+a.isactive=true and a.org_id=1333
+
+
+
+--------------------------------------------------
+
+
+
+lightsail---vps
+cloud9---IDE
+aws artifact--security, compliance and agreement documentation
+neptune--graph database
+batch---
+TAM
+TCO
+
+kinesis

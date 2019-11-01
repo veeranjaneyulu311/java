@@ -9,3 +9,10 @@ https://drissamri.be/blog/java/enable-https-in-spring-boot/
 
 drissamri.be/blog/technology/starting-modern-java-project-with-jhipster/
 dmitrypol.github.io/elastic/redis/2018/01/04/elasticsearch-redis.html
+
+
+
+v-shared:
+---------
+https://www.academia.edu/35729163/Cobas_E411_analyzer_Host_Interface_Manual
+https://github.com/bikalims/bika.lims

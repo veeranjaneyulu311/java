@@ -1,0 +1,58 @@
+psycopg2: insert multiple rows with one query
+=============================================
+    # values = ','.join(cursor.mogrify("(%s,%s)", x).decode('utf-8') for x, y in top_instructions.iteritems())
+    # print(values)
+    # conn_loc = connect_local()
+    # cursor_loc = conn_loc.cursor()
+    # cursor_loc.execute("INSERT INTO test (drug_id, instructions) VALUES " + values)
+    # conn_loc.commit()
+
+converting dicts to tuples:
+===========================
+l = [{'id':1,'name':'Foo'},{'id':2,'name':'Bar'}]
+>>> [tuple(d.values()) for d in l]
+[(1, 'Foo'), (2, 'Bar')]
+
+suggestions = []
+print(unmatched_brand_details)
+for brands in result:
+brands.update({'id': unmatched_brand_details['drug_brand_comp_id'].item()})
+suggestions.append(tuple(brands.values()))
+print("----------", suggestions)
+values = ','.join(cursor.mogrify("(%s,%s,%s,%s)", x).decode('utf-8') for x in suggestions)
+cursor_save = conn.cursor()
+cursor_save.execute("INSERT INTO drug_brand_suggest_ref (drug_brand_nm,dose_nm,drug_type_nm,drug_brand_comp_id) VALUES " + values)
+
+
+python standards:
+================
+1.Class name start with uppercase letter (For example: Student)
+2.Starting with single underscore indicates protected (For example: _colour)
+3.Starting with two underscores indicates private (Ex: __colour)
+4.setters
+    def get_weight(self):
+        return self.__weight
+ 
+    def set_weight(self, weight):
+        self.__weight = weight
+ 
+    weight = property(get_weight, set_weight)
+ 
+    # annotation/decorator based
+	
+    @property
+    def operating_system(self):
+        return self.__operating_system
+	
+	# use @attrubute_name.setter
+    @operating_system.setter
+    def operating_system(selg, new_os):
+        self.__operating_system = new_os
+	
+
+5.range()--in memory / xrange()--lazy
+6.reversed()/sorted()
+7.zip()---in memory / izip()--lazy
+8.Call a Function Until a Sentinel Value ---iter()  / partial()
+9.items() / iteritems()
+

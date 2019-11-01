@@ -1,0 +1,14 @@
+1.Set value for particular cell in pandas DataFrame using index
+  df.at[index,columnname] = value
+
+2.getting the index of a row in a pandas apply function
+  df.name
+
+
+
+docker build -t pharmacy-qa .
+docker run -d --memory="1.5g" --cpus="0.25" --name=pharmacy-qa -p 8063:8063 -v /logs:/logs pharmcay-qa
+
+
+"Hello alpha_247\\nPlease Click on 192.168.1.101:8080\\/app\\/#\\/dru\\/s
+ignup\\/provider?key=forgotpasswordlink&token=XRA864NQ&userName=alpha_247 to reset your Drucare Account password"

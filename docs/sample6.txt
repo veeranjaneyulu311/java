@@ -1,0 +1,284 @@
+import boto3
+import json
+import os
+import logging
+from boto3.dynamodb.conditions import Key
+from botocore.exceptions import ClientError
+
+logger = logging.getLogger("update_agent_did_only_status")
+logger.setLevel('DEBUG')
+
+environment = os.environ['env_var_environment']
+connect_instance_mapping = json.loads(os.environ['env_var_connect_instance_mapping'])
+
+agent_table_name_format = "intuit-objectAgent-default-{}-{}"
+routing_profile_table_name_format = "intuit-objectRoutingProfile-default-{}-{}"
+did_status_table_name = "intuit-agentDidOnlyStatus-" + environment
+
+db_client_cache = {}
+connect_client_cache = {}
+
+db_client = None
+connect_client = None
+connect_instance_id = None
+agent_table_name = None
+routing_profile_table_name = None
+
+
+def get_items_from_dynamo_table(table_name, item_search_key, secondary_index):
+    partition_key = secondary_index.split('-')
+    try:
+        table = db_client.Table(table_name)
+        response = table.query(
+            IndexName=secondary_index,
+            KeyConditionExpression=Key(partition_key[0]).eq(item_search_key)
+        )
+        if len(response['Items']) == 0:
+            logger.info("Item not found in the dynamodb table with the index : ", item_search_key)
+            return None
+        else:
+            return response
+    except ClientError as error:
+        logger.error("Exception occurred while retrieving items from dynamodb table : " + str(error))
+
+
+def get_routing_profile_id(arn):
+    try:
+        user_response = connect_client.describe_user(
+            UserId=arn,
+            InstanceId=connect_instance_id
+        )
+        if user_response['User']['RoutingProfileId'] is None:
+            logger.info("Routing profile id is not found in connect for user : ", arn)
+            return None
+        else:
+            return user_response['User']['RoutingProfileId']
+    except Exception as error:
+        logger.error("Exception occurred while calling connect describe_user api: " + str(error))
+
+
+def update_connect_routing_profile(user_id, routing_profile_id):
+    try:
+        update_routing_profile_resp = connect_client.update_user_routing_profile(
+            RoutingProfileId=routing_profile_id,
+            UserId=user_id,
+            InstanceId=connect_instance_id
+        )
+        logger.info("Successfully updated routing profile in connect.")
+        return True
+    except Exception as error:
+        logger.error("Exception occurred while updating routing profile in connect: " + str(error))
+        return False
+
+
+def save_item_to_dynamo_table(table_name, dynamo_payload):
+    try:
+        table = db_client.Table(table_name)
+        resp = table.put_item(
+            Item=dynamo_payload
+        )
+        logger.info("Successfully saved item to dynamodb table.")
+        return True
+    except ClientError as error:
+        logger.error("Exception occurred while saving item to dynamodb table: " + str(error))
+        return False
+
+
+def get_item_from_dynamo_table(table_name, arn):
+    try:
+        table = db_client.Table(table_name)
+        response = table.get_item(
+            Key={
+                'agentArn': arn
+            }
+        )
+        if response is None:
+            return False
+        else:
+            logger.info("Successfully retrieved item from dynamodb table.")
+            return True
+    except ClientError as error:
+        logger.error("Exception occurred while retrieving item in dynamodb table: " + str(error))
+        return False
+
+
+def delete_item_from_dynamo_table(table_name, arn):
+    # store in did table
+    try:
+        table = db_client.Table(table_name)
+        response = table.delete_item(
+            Key={
+                'agentArn': arn
+            }
+        )
+        logger.info("Successfully deleted item from dynamodb table.")
+    except ClientError as error:
+        logger.error("Exception when putting item in dynamodb table: " + str(error))
+        return str(error)
+
+
+def update_did_status(agentLoginId, agentArn, current_routing_profile_name, current_routing_profile_arn,
+                      did_only_routing_profile_name, enable_did_only):
+    # get routing profile id for did_only_routing_profile_name
+    item_found = False
+    did_only_routing_profile_item = get_items_from_dynamo_table(routing_profile_table_name,
+                                                                did_only_routing_profile_name.lower(),
+                                                                'intuObjectSearchName-index')
+    if did_only_routing_profile_item is None:
+        logger.error("Did only routing profile is not found in dynamodb table.")
+        return {
+            'statusCode': 400,
+            'headers': {'Content-Type': 'application/json'},
+            'body': json.dumps({'Error': 'Did only routing profile is not found in dynamodb table.'})
+        }
+    did_only_routing_profile_arn = did_only_routing_profile_item['Items'][0]['intuObjectArn']
+    logger.info("Did only routing profile arn : " + did_only_routing_profile_arn)
+
+    # Look up in did only dynamodb table
+    if not enable_did_only:
+        item_found = get_item_from_dynamo_table(did_status_table_name, agentArn)
+        if not item_found:
+            return {
+                'statusCode': 500,
+                'headers': {'Content-Type': 'application/json'},
+                'body': json.dumps({'Error': 'AgentId is not found in DID only dynamodb table.'})
+            }
+
+    # update routing profile in connect
+    rp_updated = update_connect_routing_profile(agentArn, did_only_routing_profile_arn)
+    if not rp_updated:
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json'},
+            'body': json.dumps({'Error': 'Routing profile is not updated in Connect.'})
+        }
+
+    # store agentId in did only status dynamodb table if not found, else delete the entry
+    if enable_did_only:
+        dynamo_payload = {
+            'agentLoginId': agentLoginId,
+            'agentArn': agentArn,
+            'previousRoutingProfileArn': current_routing_profile_arn,
+            'previousRoutingProfileName': current_routing_profile_name,
+            'didOnlyRoutingProfileArn': did_only_routing_profile_arn,
+            'didOnlyRoutingProfileName': did_only_routing_profile_name,
+            'enable_did_only': enable_did_only
+        }
+        item_saved = save_item_to_dynamo_table(did_status_table_name, dynamo_payload)
+        if not item_saved:
+            return {
+                'statusCode': 500,
+                'headers': {'Content-Type': 'application/json'},
+                'body': json.dumps({'Error': 'Did only status is not saved to dynamodb table.'})
+            }
+    else:
+        delete_item_from_dynamo_table(did_status_table_name, agentArn)
+
+
+def handler(event, context):
+    global db_client
+    global connect_client
+    global connect_instance_id
+    global agent_table_name
+    global routing_profile_table_name
+
+    print(event)
+
+    if type(event) is not dict:
+        event = json.loads(event)
+
+    tid = event['headers']['intuit_tid']
+
+    if not event['httpMethod'] == 'POST':
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json'},
+            'body': json.dumps({'Error': 'Invalid HttpMethod'})
+        }
+
+    else:
+        body = json.loads(event['body'])
+        region = body['awsRegion']
+        agentLoginId = body['agentLoginId']
+        agentArn = body['agentArn']
+        enable_did_only = body['enableDidOnly']
+        did_only_routing_profile_name = body['didOnlyRoutingProfileName']
+
+        agent_table_name = agent_table_name_format.format(environment, region)
+        routing_profile_table_name = routing_profile_table_name_format.format(environment, region)
+
+        connect_instance_id = connect_instance_mapping[region]
+
+        # Retrieve from cache or create db client
+        if (region in db_client_cache):
+            db_client = db_client_cache[region]
+        else:
+            db_client = boto3.resource('dynamodb', region_name=region)
+            db_client_cache[region] = db_client;
+
+        # Retrieve from cache or create db client
+        if (region in connect_client_cache):
+            connect_client = connect_client_cache[region]
+        else:
+            connect_client = boto3.client('connect', region_name=region)
+            connect_client_cache[region] = connect_client;
+
+        #         user_item = get_items_from_dynamo_table(agent_table_name, agentLoginId.lower(), 'intuObjectSearchName-index')
+        #         if user_item is None:
+        #             logger.error("User is not found in dynamodb table.")
+        #             return {
+        #                 'statusCode': 400,
+        #                 'headers': {'Content-Type': 'application/json'},
+        #                 'body': json.dumps({'Error': 'User is not found in dynamodb table.'})
+        #             }
+        #         agentArn = user_item['Items'][0]['intuObjectArn']
+        #         logger.info("User arn for agent : " + agentArn)
+
+        user_routing_profile_id = get_routing_profile_id(agentArn)
+        if user_routing_profile_id is None:
+            logger.error("User routing profile id is not found in Amazon Connect.")
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json'},
+                'body': json.dumps({'Error': 'User routing profile id is not found in Amazon Connect.'})
+            }
+        logger.info("User routing profile id: " + user_routing_profile_id)
+
+        user_routing_profile = get_items_from_dynamo_table(routing_profile_table_name, user_routing_profile_id,
+                                                           'intuObjectId-index')
+        if user_routing_profile is None:
+            logger.error("User routing profile is not found in dynamodb table.")
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json'},
+                'body': json.dumps({'Error': 'User routing profile is not found in dynamodb table.'})
+            }
+        current_routing_profile_name = user_routing_profile['Items'][0]['intuObjectSearchName']
+        current_routing_profile_arn = user_routing_profile['Items'][0]['intuObjectArn']
+        logger.info("User current routing profile name: " + current_routing_profile_name)
+
+        if enable_did_only:
+            if "did_only" in current_routing_profile_name:
+                logger.info("Agent is already in DID only routing profile")
+            else:
+                update_did_status(agentLoginId, agentArn, current_routing_profile_name, current_routing_profile_arn,
+                                  did_only_routing_profile_name, enable_did_only)
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json'},
+                'body': json.dumps({'Success': 'Successfully updated to Did only status'})
+            }
+        else:
+            if "did_only" not in current_routing_profile_name:
+                logger.info("Agent is already in a non-did only routing profile")
+                # delete entry from did table if found
+                if get_item_from_dynamo_table(did_status_table_name, agentArn):
+                    delete_item_from_dynamo_table(did_status_table_name, agentArn)
+            else:
+                # look up routing profile from did table and update routing profile
+                update_did_status(agentLoginId, agentArn, None, None, did_only_routing_profile_name, enable_did_only)
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json'},
+                'body': json.dumps({'Success': 'Successfully updated to Non-did only status'})
+            }

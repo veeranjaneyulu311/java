@@ -1,0 +1,40 @@
+@Profile -meta annotation
+
+@ActiveProfiles 
+Note that profiles are not an "either-or" proposition; it is possible to activate multiple profiles at once. Programmatically, simply provide multiple profile names to the setActiveProfiles() method, which accepts String… varargs:
+ctx.getEnvironment().setActiveProfiles("profile1", "profile2");
+Declaratively, spring.profiles.active may accept a comma-separated list of profile names:
+-Dspring.profiles.active="profile1,profile2"
+
+@Profile("default")
+
+PropertySource:
+	Spring’s StandardEnvironment is configured with two PropertySource objects
+		1. JVM system properties--  System.getProperties()
+		2. system environment variables--  System.getenv()
+	StandardServletEnvironment : 
+		3. servlet config and servlet context parameters
+
+	Note:
+	1.system properties have precedence over environment variables
+	2.For a common StandardServletEnvironment, 
+	 * ServletConfig parameters (if applicable, e.g. in case of a DispatcherServlet context) 
+	 * ServletContext parameters (web.xml context-param entries) 
+	 * JNDI environment variables ("java:comp/env/" entries) 
+	 * JVM system properties ("-D" commandline arguments) 
+	 * JVM system environment (operating system environment variables)
+
+@PropertySource
+	adding a PropertySource to Spring’s Environment.i.e @PropertySource("classpath:/com/myco/app.properties")
+
+Placeholder resolution in statements
+	you may configure the resolution process in any way you like: change the precedence of searching through system properties and environment variables, or remove them entirely; add your own property sources to the mix as appropriate.
+
+
+3.15 Additional Capabilities of the ApplicationContext:
+	BeanFactory interface
+	ApplicationContext interface
+	MessageSource
+	ContextLoader to automatically instantiate an ApplicationContext as part of the normal startup process of a Java EE web application
+	
+	

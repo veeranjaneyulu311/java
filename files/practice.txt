@@ -4,17 +4,39 @@ Pasw : HD1gaGj52/HoBy3X+00fofA+B6VGgBjo2UbT7djZGFU=
 "accessKeyId":"ASIAWHHNLI2UDBXZMUUA"
 
 
-PF Acc No:101374013214
 
-python-repo:
-------------
-https://git-codecommit.ap-south-1.amazonaws.com/v1/repos/dru-app-mis_python
+
+
+
+
+regex:
+=====
+https://www.ntu.edu.sg/home/ehchua/programming/howto/Regexe.html
+
+https://192.168.1.123:7071/share
+
+PF Acc No:101374013214
+https://docs.oracle.com/cd/E19226-01/820-7627/bncbn/index.html[authentication types]
 
 postgres::::::    C:\Program Files (x86)\PostgreSQL\10\data
 
-rocketchat:::::::::::rs4-iuh-r83
+rocketchat:::::::::::Veer@311
 
 EmployeeID (DRUHYD01067)mp6z
+
+ecs:
+====
+$(aws ecr get-login --no-include-email --region ap-southeast-2)
+docker build -t aus-prod-nginx .
+docker tag aus-prod-nginx:latest 329338480233.dkr.ecr.ap-southeast-2.amazonaws.com/aus-prod-nginx:latest
+docker push 329338480233.dkr.ecr.ap-southeast-2.amazonaws.com/aus-prod-nginx:latest
+
+
+Environment Variables
+---------------------
+IS_TIME_ZONE_REQUIRED
+SEND_PROMO_SMS_URL =http://${GATEWAY_SERVER_IP:localhost}:8055/gateway/sendToPromoSms [for Restcall from appcore to gateway jar(Sending Promotional SMS)]
+
 
 
 payslip:
@@ -29,6 +51,18 @@ conf:    49.207.6.227:8888/dev/ipd-application-dev.properties
 
 epsilondev
 Dru@Epsilon@111%
+
+
+---------------------------AWS CONSOLE----------
+drucare-in-qa
+veeranjaneyulu.n
+Dru@Qa@Veer123
+----------------
+Veer311*
+
+
+
+
 angular-6:
 
 node --max_old_space_size=8192 node_modules/@angular/cli/bin/ng build -c development --aot --base-href ./
@@ -51,6 +85,13 @@ aws console login[drucare]-------------------------[veeranjaneyulu.n]----[v]
 18.208.105.25:15951[qa]----------------------------[drucareqa]-----------[d]----[/home/drucareqa/deploy(jenkins)]--[/opt/app]
 192.168.1.101:2233[dev]----------------------------[alphadev]------------[d]
 13.232.239.2:8080[jenkins]-------------------------[devops]--------------[d]
+
+my operator:veer/Drucare
+
+
+
+
+
 
 http://192.168.1.109:5601/app/kibana#/home?_g=()
 49.207.6.227:5601[apm-kibana]
@@ -77,10 +118,21 @@ bation:::18.208.105.25
 
 https://docs.djangoproject.com/en/1.11/intro/tutorial01/
 
+python-repo:
+------------
+https://git-codecommit.ap-south-1.amazonaws.com/v1/repos/dru-app-mis_python
+https://git-codecommit.ap-south-1.amazonaws.com/v1/repos/dru-app-core_AI_ML
 
+
+config repo:
+-----------
+https://git-codecommit.ap-south-1.amazonaws.com/v1/repos/dru-app-core-config
 https://git-codecommit.ap-south-1.amazonaws.com/v1/repos/dru-app-core-prod-config
 
-Dru@Dev@123%%
+Zuul:
+----
+https://git-codecommit.ap-south-1.amazonaws.com/v1/repos/dru-arch-in
+
 
 ui release:
 ===========
@@ -133,8 +185,8 @@ mail IP:
 http://192.168.2.72:8459/redmine/issues/1
 http://192.168.1.123:3000 [rocket] 
 
-192.168.1.101		[dev][Dev@Alpha@123%][uiteam/Dru@Ui@123#/Your new secret key is: 3XVVFAI6D2F2YQYQ3C62M7NGPI/]
-192.168.1.111		[dev db]
+192.168.1.101		[dev][Dev@Alpha@123%][uiteam/Dru@Ui@123#/Your new secret key is: 3XVVFAI6D2F2YQYQ3C62M7NGPI/] Uiteam@Dev@111%
+192.168.1.111:5869		[dev db]
 192.168.1.131		[qa db][dbuser/Dru@999]
 192.168.1.107:8080	[jenkin][35798][devops/Dru@Dev0ps@123]
 192.168.1.106		[qa][39485][drucareqa/Dru@User@123%][jenkins/Dru@DJen@123] 
@@ -149,8 +201,6 @@ metricbeat:
 192.168.1.108[arch]	    ----metricbeat-6.6.1-2019.02.26	
 192.168.1.123[rocket]
 
-config repo:
-https://git-codecommit.ap-south-1.amazonaws.com/v1/repos/dru-app-core-config
 
 
 Dru@Admin@111%%
@@ -272,23 +322,13 @@ devops_doc [Doctor@123] - doctor
 devops_rec [Devops@123] -receptionist
 
 
-deleting a service:
-192.168.1.101:8761/eureka/apps/emr-optho-siri2/dru.test01:emr-optho-siri2:8042
-
+deleting a service:[DELETE method]
+http://192.168.1.101:8761/eureka/apps/emr-optho-siri2/dru.test01:emr-optho-siri2:8042
 http://49.207.6.227:8888/dev/ipd-application-dev.properties
 
-PUT method:
+downing a service:[PUT method]
 http://49.207.6.227:8761/eureka/apps/EMR-SERVICE-VEER/dru.test01:emr-service-veer:8058/status?value=DOWN
-
-
 http://192.168.1.101:8761/eureka/apps/patient-portal-service-s/dru.test01:patient-portal-service-s:8053/status?value=DOWN
-
-
-
-
-
-
-
 
 add 8056 in activemq.xml  place of 6666
 communication
@@ -300,7 +340,27 @@ instance-id: ${eureka.instance.hostname}:${spring.application.name}:${spring.app
 
 https://softwareengineering.stackexchange.com/questions/14335/biggest-mistake-youve-ever-made
 
-zuul=nohup java -Dspring.datasource.url=jdbc:postgresql://52.66.186.206:5432/drucare_qa -Dserver.ssl.key-store=/opt/app/certs/keystore.p12 -Dserver.ssl.key-store-password=Drucare@123 -Dserver.ssl.keyStoreType=PKCS12 -Dserver.ssl.keyAlias=dev-qa -jar $PATH_TO_JAR /tmp 2>> /dev/null >> /dev/null &  echo $! > $PID_PATH_NAME
+zuul=nohup java -Dspring.datasource.url=jdbc:postgresql://52.66.186.206:5432/drucare_qa -Dserver.ssl.key-store=/opt/app/certs/keystore.p12 -Dserver.ssl.key-store-password=Drucare@123 -Dserver.
+
+
+
+.keyStoreType=PKCS12 -Dserver.ssl.keyAlias=dev-qa -jar $PATH_TO_JAR /tmp 2>> /dev/null >> /dev/null &  echo $! > $PID_PATH_NAME
+
+
+QA Release:
+-----------
+ui:
+--
+cd /home/drucareqa/qa/app
+python ui.py qa-app
+python ui.py qa-new
+
+container:
+docker build -t lab-qa .
+docker run -d -p 8065:8065 --name=lab-qa-OCT17 -v /logs:/logs lab-qa
+
+image pushing:
+scp -P 35798 lab-0.0.1.jar devops@192.168.1.107:/home/devops
  
 
 production jar release:
@@ -337,29 +397,57 @@ STEP:3
 3.docker tag in-prod-inventory:latest 329338480233.dkr.ecr.ap-south-1.amazonaws.com/in-prod-inventory:latest
 4.docker push 329338480233.dkr.ecr.ap-south-1.amazonaws.com/in-prod-inventory:latest
 
+docker build -t in-prod-ipd .
+docker tag in-prod-ipd:latest 329338480233.dkr.ecr.ap-south-1.amazonaws.com/in-prod-ipd:latest
+docker push 329338480233.dkr.ecr.ap-south-1.amazonaws.com/in-prod-ipd:latest
+
+
+
+
+
+
+
+
 
 ui:
+new:
 backup:  cp -R /opt/app/ui/new /opt/app/uibackup/2019-JUN-12/
 delete:  rm -rf /opt/app/ui/new/*
 release: cp -R /home/admin/deploy/new/drucare/* /opt/app/ui/new/
 
 
+microui:
+new:
+backup:  cp -R /opt/app/ui/microui /opt/app/uibackup/2019-Aug-26/
+delete:  rm -rf /opt/app/ui/microui/*
+release: cp -R /home/admin/deploy/microui/* /opt/app/ui/microui/
+
+
+
+
+Dru@Prod@123
 ui  : ssh -p 15951 druuiuser@10.0.4.23[druuiuser Dru@U1user@123]      
 jar : ssh -p 65235  drooser@10.0.0.188[drooser Dru@Dr00ser@123]
-arch: ssh -p 45349 druuserarch@10.0.0.208[druuserarch Dru@A6ch@123]
+arch: ssh -p 45349 druuserarch@10.0.0.208[druuserarch Dru@A6ch@123]         
+elk: ssh -p 15951 admin@10.0.0.60[admin Dru@Prod@123]
 
 prod file upload issue:
 /tmp/tomcat.4024784983140232598.8765/work/Tomcat/localhost/
 
 
+13.233.227.125:4545
 
+sms-credits:
+------------
+sysadmin@dru.care
+Druc@re@123
 
 
 QA containers:
 --------------
 pharmacy
 lab
-inventory
+patient portal
 ipd
 
 
@@ -394,15 +482,15 @@ password:Drucare@123
 IP Address=192.168.1.106
 IP Address=49.207.6.227
 
-Final SSL certificate generarted>
----------------------------------
+						Final SSL certificate generarted
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 openssl req -x509 -nodes -days 730 -newkey rsa:2048 \
  -keyout cert.key -out cert.pem -config req.cnf -sha256
 
 or 
 
-openssl req -x509 -sha256 -nodes -days 3650 -newkey rsa:2048 -keyout key.pem -out cert.pem  -config req.cnf
+1.openssl req -x509 -sha256 -nodes -days 3650 -newkey rsa:2048 -keyout key.pem -out cert.pem  -config req.cnf
 
 req.cnf:
 -------
@@ -432,10 +520,59 @@ subjectAltName = @alt_names
 IP.1 = 192.168.1.106
 IP.2 = 49.207.6.227
 
-
-new:/opt/app/qa_new_cert/qakeystore.p12      alias:dev-qa  password:Drucare@123
+new:/opt/app/qa_new_cert/qakeystore.p12      alias:dev-qa  p
+assword:Drucare@123
 old:/opt/app/certs/localqakeystore.p12		tomcat		venkat.t
 
+
+2.for java:
+-----------
+openssl pkcs12 -export -in cert.pem -inkey key.pem -out qakeystore.p12 -name "dev-qa"
+
+alias:dev-qa
+password:Drucare@123
+
+        ssl_certificate "/opt/app/certs/fullchain.pem";
+        ssl_certificate_key "/opt/app/certs/privkey.pem";
+
+finding tomcat version:[https://watilearnd2day.wordpress.com/2015/07/06/how-to-check-apache-tomcat-version-on-rhelcentos/]
+ java -cp lib/catalina.jar org.apache.catalina.util.ServerInfo
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+keytool -genkey -alias tomcat -keyalg RSA
+keytool -importkeystore -srckeystore /root/.keystore -destkeystore /root/.keystore -deststoretype pkcs12
+
+alfresco
+
+1. vi conf/server.xml
+2. vi /usr/local/tomcat/shared/classes/alfresco-global.properties
+<Connector port="7070"
+        protocol="org.apache.coyote.http11.Http11Nio2Protocol"
+        sslImplementationName="org.apache.tomcat.util.net.jsse.JSSEImplementation"
+        maxThreads="150"
+        SSLEnabled="true">
+    <SSLHostConfig certificateVerification="none" >
+    <Certificate certificateKeystoreFile="<CATALINA_BASE>/alf_data/qakeystore.p12"
+        certificateKeystorePassword="alfresco"
+        certificateKeystoreType="PKCS12" />
+    </SSLHostConfig>
+</Connector>
+
+
+
+share:
+vi /usr/local/tomcat/shared/classes/alfresco/web-extension/share-config-custom.xml
+https://community.alfresco.com/thread/200966-change-alfresco-to-use-ssl-and-share-stops-authenticating
+
+
+dockercompose copy files to container:
+docker cp src/. mycontainer:/target
+
+https://docs.alfresco.com/6.0/tasks/configure-ssl-test.html
+https://documentation.commvault.com/commvault/v11/article?p=50506.htm
+https://tomcat.apache.org/tomcat-8.5-doc/ssl-howto.html#Configuration
 
 
 
@@ -465,6 +602,9 @@ prod:
 22527 report-module-0.0.1.jar
 
 
+Dru@Alpha@111%
+
+
 git:
 ---
 Create a new branch:
@@ -487,7 +627,68 @@ gammadev::https://www.google.com/chart?chs=200x200&chld=M|0&cht=qr&chl=otpauth:/
 
 
 
-gunicorn -w 2 -b $IP:8049 controller:app
+gunicorn -w 2 -b $IP:8049 controller:app --daemon
+ 
+assign timezone:[8050 - 8059]  [unused in dev 8057,8059]
+---------------
+ java -Xmx1500M -Dspring.datasource.url=jdbc:postgresql://192.168.1.111:5433/drucare_dev  -DIS_TIME_ZONE_REQUIRED=true -DSEND_EMAIL_URL=192.168.1.101 -DSEND_SMS_URL=192.168.1.101 -Djava.io.tmpdir=/opt/app/javatmpdir  -jar /home/deltadev/deploy/warehouse-0.0.1.jar &
+
+
+
+
+container imagepush:
+====================
+
+add properties in bootstrap.yml:
+-------------------------------
+
+hostname: ${IP:localhost}
+ip-address: ${IP:localhost}
+instance-id: ${eureka.instance.hostname}:${spring.application.name}:${spring.application.instance_id:${server.port}}
+
+
+source /root/.bash_profile
+aws ecr get-login --no-include-email --region ap-south-1 | awk '{printf $6}' | docker login -u AWS 329338480233.dkr.ecr.ap-south-1.amazonaws.com --password-stdin
+docker build -t in-prod-inventory:1.8.0 .
+docker tag in-prod-inventory:1.8.0 329338480233.dkr.ecr.ap-south-1.amazonaws.com/in-prod-inventory:1.8.0
+docker push 329338480233.dkr.ecr.ap-south-1.amazonaws.com/in-prod-inventory:1.8.0
+
+
+google.com/chart?chs=200x200&chld=M|0&cht=qr&chl=otpauth://totp/veera@qa.dru.care?secret=5ZREQIEEORMHOFK5IEME3UDS64&issuer=qa.dru.care
+Your new secret key is: 5ZREQIEEORMHOFK5IEME3UDS64
+Your verification code is 820593
+Your emergency scratch codes are:
+43546141
+13047945
+69188510
+92003484
+87812294
+
+
+python:
+docker build -t in-prod-erx-ml .
+docker tag in-prod-erx-ml:latest 329338480233.dkr.ecr.ap-south-1.amazonaws.com/in-prod-erx-ml:latest
+docker push 329338480233.dkr.ecr.ap-south-1.amazonaws.com/in-prod-erx-ml:latest
+
+
+dev,qa,elk---[veera,Veer@Dru@311#]
+
+
+
+
+
+
+production scripts:
+00 * * * *  /usr/bin/sh  /home/admin/deploy/prod_scripts/disk_space_daily_mail_alert_prod.sh
+00 09 * * *  /usr/bin/sh  /home/admin/deploy/prod_scripts/disk_space_mail_alert_prod.sh
+00 09 */7 * *  /usr/bin/sh  /home/admin/deploy/prod_scripts/logs_zipping_prod.sh
+
+
+
+java run command:
+nohup java -Xmx1500M -Dspring.datasource.url=jdbc:postgresql://$DB_IP:$DB_PORT/drucare_dev -javaagent:$APM_AGENT_JAR -Delastic.apm.server_url=http://$APM_SERVER_IP:$APM_SERVER_PORT -Delastic.apm.service_name=admin-dev -Delastic.apm.application_packages=com.drucare -jar $PATH_TO_JAR --server.port=8072 /tmp 2>> /dev/null >> /dev/null &
+
+
 
 
 

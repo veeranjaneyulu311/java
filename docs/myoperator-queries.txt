@@ -1,0 +1,74 @@
+-> get doctors count of each department
+
+SELECT ROW_NUMBER () OVER (ORDER BY DEPT_NM) AS SNO, count(edx.dept_id), edx.dept_id,d.dept_nm 
+FROM public.employee_dept_xref edx join public.employee_designation_xref ed on edx.emp_id=ed.emp_id and ed.isactive=true and designation_id=1 
+join public.organisation_employee_xref eir on edx.emp_id=eir.emp_id and eir.org_id=1333 
+join employees_info_ref ei on ei.emp_id=edx.emp_id 
+join department_ref d on edx.dept_id=d.dept_id 
+where edx.isactive=true and ei.isactive=true group by edx.dept_id,d.dept_nm order by dept_id
+
+-------------------------------------------------------------------------------
+-> get employees names and designations of given org_id
+
+select d.designation,c.first_nm from organisation_employee_xref a 
+join employee_designation_xref b on a.emp_id=b.emp_id 
+join employees_info_ref c on c.emp_id=b.emp_id 
+join designation_ref d on d.designation_id=b.designation_id
+where 
+b.designation_id=1 
+and 
+a.isactive=true and a.org_id=1333
+----------------------------------------------------------------------------------
+-> list of departments doctors having
+
+select * from employee_dept_xref where emp_id=220190316000002
+
+update employee_dept_xref set isactive=true where dept_id=23  -- mapping department to doctor
+
+-----------------------------------------------
+select jsonb_object_keys(dept_list) FROM myoperator_appointment_temp_trans  -- returns no of keys in jsonb column value
+select count(*) from (select jsonb_object_keys(dept_list) FROM myoperator_appointment_temp_trans where mobile_no='9999988888') as option_count --returns no of keys in jsonb column value
+
+
+
+
+
+
+--->list of doctors in given department.
+
+old query with issue i.e giving non doctors
+SELECT OE.EMP_ID, REPLACE(CONCAT(INITCAP(EIR.FIRST_NM),' ',INITCAP(EIR.MIDDLE_NM),' ',INITCAP(EIR.LAST_NM)),' ',' ') AS EMP_USER_NM FROM ORGANISATION_EMPLOYEE_XREF OE JOIN EMPLOYEES_INFO_REF EIR ON EIR.EMP_ID=OE.EMP_ID JOIN EMPLOYEE_DEPT_XREF ED ON ED.EMP_ID= EIR.EMP_ID WHERE OE.ORG_ID=1333 AND DEPT_ID=17 AND DOCTOR_REGISTER_NO IS NOT null
+
+
+SELECT OE.EMP_ID, 
+REPLACE(CONCAT(INITCAP(EIR.FIRST_NM),' ',INITCAP(EIR.MIDDLE_NM),' ',INITCAP(EIR.LAST_NM)),' ',' ') AS EMP_USER_NM 
+FROM ORGANISATION_EMPLOYEE_XREF OE 
+JOIN EMPLOYEES_INFO_REF EIR ON EIR.EMP_ID=OE.EMP_ID AND EIR.ISACTIVE=TRUE
+JOIN EMPLOYEE_DEPT_XREF ED ON ED.EMP_ID= EIR.EMP_ID
+JOIN EMPLOYEE_DESIGNATION_XREF EDX ON EDX.EMP_ID=EIR.EMP_ID AND EDX.DESIGNATION_ID=1 
+WHERE OE.ORG_ID=1333 AND DEPT_ID=17;
+
+
+
+
+
+
+
+
+
+fixed:
+3.In appointment screen for Ophthalmology department only one doctor is available. But in IVRS saying that  two doctor available for ophthalmology department.
+  --> I have query issue, I will check this with db team and let you know once fixed
+
+1.After connecting IVRS call the first 6-8sec of the call not having any message.
+  -->It needs to be check with my operator team. 
+
+future version:
+3. Even I've given the wrong date&month allowing to book an appointment.
+4.If I've entered the wrong date&month the IVRS saying "Please enter correct time format".
+
+functionality based
+1.While confirming appointment "Press  1 for confirm appointment" & "Press 3 for cancel appointment". Here 2nd option is missed.
+   --->option 3 is fixed for the appointment cancelation. options 1,2 availability depends on the availability of the slots of a doctor.
+5.Doctor available dates are different from IVRS to appointment screen.
+ --> I have to find the issue let you know once it is fixed. 

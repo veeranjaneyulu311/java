@@ -251,6 +251,14 @@ add  below property to allow particular users in "/etc/ssh/sshd_config" file
 /var/log/secure
 /etc/hosts.deny 
 
+
+error:no tty present and no askpass program specified
+solution:
+Use NOPASSWD line for all commands, I mean:
+jenkins ALL=(ALL) NOPASSWD: ALL
+Put the line after all other lines in the sudoers file.
+
+
 ================================================================< DOCKERS >====================================================================
 
 Docker:  [https://docker-curriculum.com/#terminology]
@@ -260,10 +268,25 @@ $ sudo docker images
 
 
 docker build -t reponame:tagname .
-docker run -d -p 8094:8094 --name inventory 69d6afdc52f9
+docker run -d -p 8094:8094 --name inventory or 69d6afdc52f9
 
 map logs:
 docker run -d -p 8094:8094 -v /logs:/logs inventory
+docker run -d --network host -v /logs:/logs warehouse
+
+docker build -t zuul .
+docker run -d -p 8766:8766 -v /opt/app/dockers-aus/logs:/logs/arch zuul
+
+
+docker build -t login
+docker run -d -v /opt/app/dockers-aus/logs:/logs login
+
+docker build -t reports .
+docker run -d -p 8059:8049 -v /opt/app/dockers-aus/logs:/logs/ reports
+
+
+docker build -t nginx
+docker run -d -p 6060:80 nginx
 
 add to above command for memory
 --memory=2000m
@@ -417,7 +440,11 @@ beta_team=appointment,appointment-new,opd,internal-app
 references:
 ===========
 websocket:
+
 https://blog.teamtreehouse.com/an-introduction-to-websockets
+
+python thread:
+https://alyssaq.github.io/2014/how-do-I-return-a-http-response-to-caller-and-continue-processing/
 
 https://wsvincent.com/django-user-authentication-tutorial-login-and-logout/
 
@@ -500,7 +527,7 @@ starting xe,rocketchat,openproject
 XE:
 
 cd /opt/x2engine-6.9-8
-./ctlscript start
+./ctlscript.sh start
 
 Open Proj:
 ----------
@@ -862,6 +889,7 @@ git checkout seotweaks
 git merge -s ours master
 git checkout master
 git merge seotweaks
+https://www.ntu.edu.sg/home/ehchua/programming/howto/Tomcat_HowTo.html
 https://www.amitph.com/spring-data-jpa-query-methods/
 https://www.git-tower.com/learn/git/faq/track-remote-upstream-branch
 https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html
@@ -885,9 +913,18 @@ shared-v:
 https://realpython.com/
 https://codybonney.com/allow-cross-origin-resource-sharing-cors-using-flask/
 https://flask-cors.readthedocs.io/en/latest/
+https://www.thegeekstuff.com/2009/03/15-practical-unix-grep-command-examples/
+https://www.digitalocean.com/community/tutorials/how-to-remove-docker-images-containers-and-volumes
+http://api.textlocal.in/docs/sendsms
+https://www.tecmint.com/35-practical-examples-of-linux-find-command/
+https://dzone.com/articles/temp-store-and-memory-percent
 
 
 
+Activemq memory management dzone.com/articles/temp-store-and-memory-percent
+---https://dzone.com/articles/temp-store-and-memory-percent
+
+https://www.tecmint.com/synchronize-time-with-ntp-in-linux/ ----time synchronization in centos
 
 python -m pip install -U --force-reinstall pip
 
@@ -906,6 +943,7 @@ https://towardsdatascience.com/natural-language-processing-for-fuzzy-string-matc
 https://pandas.pydata.org/pandas-docs/stable/getting_started/comparison/comparison_with_sql.html
 
 
+ 
 
 
 verdacio:
@@ -988,4 +1026,232 @@ columns
 axes=rows+columns
 
 
+SELECT ltr.long_common_nm, ltr.loinc_system, ltr.investigation_department, ltr.time_aspect, ltr.is_panel, ltr.order_obs, ltr.test_rank , 'mapped' as type FROM lab.lab_org_test_xref lotx inner join lab.lab_test_ref  ltr on lotx.test_id=ltr.test_id union all (SELECT ltr.long_common_nm, ltr.loinc_system, ltr.investigation_department, ltr.time_aspect, ltr.is_panel, ltr.order_obs, ltr.test_rank,'unmapped' as type FROM lab.lab_org_test_xref lotx right join lab.lab_test_ref  ltr on lotx.test_id=ltr.test_id where lotx.test_id is null and ltr.isactive is true and ltr.long_common_nm='GLOBULIN' order by test_rank)
 
+running python application in dev using gunicorn:
+=================================================
+https://www.rosehosting.com/blog/how-to-install-python-3-6-4-on-centos-7/
+1.	sudo yum install -y https://centos7.iuscommunity.org/ius-release.rpm
+	sudo yum update
+	sudo yum install -y python36u python36u-libs python36u-devel python36u-pip
+
+
+1. make below changes in app.run()
+    i.e   app.run(host="0.0.0.0", port="8057", debug=True)
+
+
+2.gunicorn -w 2 -b $IP:$PORT flaskfilename:app --daemon
+    i.e   dev  :gunicorn -w 2 -b  192.168.1.101:8057 catalog:app --daemon
+		  qa   :gunicorn --certfile=/opt/app/qa_new_cert/cert.pem --keyfile=/opt/app/qa_new_cert/key.pem  -w 2 -b  192.168.1.106:8057 catalog:app --daemon
+		  erx-dev  :gunicorn -w 2 -b  192.168.1.101:8062 erxsuggestions:app --preload --daemon {don't use}
+					gunicorn -w 2 -b  192.168.1.101:8064 erxsuggestions:app --daemon
+					gunicorn -w 2 -b  192.168.1.101:8065 inventory_excel_upload:app --daemon
+					gunicorn -b  192.168.1.101:5000 myop_with_no_back_flow:app --daemon
+
+	
+3.pyhton3.6 library in dev
+  "/usr/lib/python3.6/site-packages/"
+  labupload:
+  pip3.6 install gunicorn
+  pip3.6 install psycopg2-binary
+  pip3.6 install pandas
+  pip3.6 install flask
+  pip3.6 install flask_cors
+  pip3.6 install fuzzywuzzy
+  pip3.6 install python-Levenshtein  [if not get installed then use "yum install gcc"]
+  erx-suggestions:
+  pandas,psycopg2-binary,flask_cors,apscheduler
+   
+
+1.pip install [package name]
+2.pip install requests==2.0.0
+
+
+production pyhton setup:
+========================
+1.virtualenv erx_suggestions_venv
+2.activate virtualenv:
+source erx_suggestions_venv/bin/activate
+deactivate
+3.without activating virtualenv:
+erx_suggestions_venv/bin/python python_script.py
+
+
+containerizing python app:
+==========================
+ERX:
+====
+1.Dockerfile:
+------------
+FROM python:3.7-alpine
+
+VOLUME /logs
+COPY . /app
+WORKDIR /app
+RUN pip install --upgrade pip
+RUN apk add --no-cache python3-dev postgresql-libs libstdc++ && \
+    apk add --no-cache --virtual .build-deps g++ postgresql-dev && \
+    ln -s /usr/include/locale.h /usr/include/xlocale.h && \
+    pip3 install -r requirements.txt && \
+    apk --purge del .build-deps
+
+
+EXPOSE 8064
+
+ENTRYPOINT ["sh", "-c","/app/start.sh" ]
+
+
+
+
+2.requirements.txt:
+-------------------
+flask
+gunicorn
+psycopg2-binary
+flask-cors
+pandas
+apscheduler
+
+3.start.sh:
+-----------
+#!/bin/sh
+export IP=`/sbin/ifconfig eth0 | grep inet | awk '{print $2}'| cut -f2 -d:`
+exec gunicorn -w 2 -b $IP:8064 erxsuggestions:app
+
+4.docker build -t erx .
+5.docker run -d -p 8064:8064 -v /logs:/logs/ erx
+
+
+
+
+
+My Operator:
+-----------
+1.Dockerfile:
+------------
+FROM python:3.7-alpine
+
+VOLUME /logs
+COPY . /app
+WORKDIR /app
+RUN pip install --upgrade pip
+RUN apk add --no-cache python3-dev postgresql-libs libstdc++ && \
+    apk add --no-cache --virtual .build-deps g++ postgresql-dev && \
+    ln -s /usr/include/locale.h /usr/include/xlocale.h && \
+    pip3 install -r requirements.txt && \
+    apk --purge del .build-deps
+
+
+EXPOSE 8064
+
+ENTRYPOINT ["sh", "-c","/app/start.sh" ]
+
+
+2.requirements.txt:
+-------------------
+flask
+gunicorn
+psycopg2-binary
+flask-cors
+
+
+3.start.sh:
+-----------
+#!/bin/sh
+export IP=`/sbin/ifconfig eth0 | grep inet | awk '{print $2}'| cut -f2 -d:`
+export DB_IP=$DB_IP
+export DB_PORT=$DB_PORT
+
+exec gunicorn -w 2 -b $IP:5000 myop_with_no_back_flow:app
+
+
+
+4.docker build -t myoperator .
+5.docker run -d -p 5000:5000 -v /logs:/logs/ myoperator
+
+
+
+
+
+
+move images:
+------------
+docker save -o ./erx.tar erx:latest
+scp -P 39485 erx.tar drucareqa@192.168.1.106:/home/drucareqa/erx-suggestions
+docker load -i ./erx.tar
+
+
+qa db:
+username:drucare_appuser
+Password:care$app@2233
+export DB_IP=13.234.40.201
+export DB_PORT=3388
+
+
+setup timezone:
+#timedatectl list-timezones(for fetching the list of timezones available)
+#timedatectl set-timezone <time-zone name>
+#date(to check the date and time changes affected or not)
+
+
+
+
+
+
+myoperator queries:
+SELECT od.dept_id,dept.dept_nm
+FROM public.organisation_department_xref od join 
+department_ref dept on od.dept_id=dept.dept_id where org_id=1170 order by dept_nm;
+ 
+
+SELECT oe.emp_id, REPLACE(CONCAT(INITCAP(eir.FIRST_NM),' ',INITCAP(eir.MIDDLE_NM),' ',INITCAP(eir.LAST_NM)),' ',' ') as emp_user_nm
+FROM organisation_employee_xref oe join employees_info_ref eir on eir.emp_id=oe.emp_id
+join employee_dept_xref ed on ed.emp_id= eir.emp_id where oe.org_id=1170 and dept_id=46 and doctor_register_no is not null order by emp_user_nm;
+ 
+
+SELECT DOCTOR_ID, DOCTOR_REGISTER_NO, START_DAY, END_DAY, START_TM, END_TM, ORG_ID, ORG_GRP_ID, ISACTIVE, 
+CREATED_USR_ID, WORKING_DAY ,START_DT,END_DT FROM APPOINTMENT.DOCTOR_WORK_INFO_TRANS 
+WHERE ISACTIVE=TRUE AND DOCTOR_ID=220180127000002 AND ORG_ID=2345
+
+SELECT ROW_NUMBER () OVER (ORDER BY EMP_USER_NM) AS SNO,OE.EMP_ID, REPLACE(CONCAT(INITCAP(EIR.FIRST_NM),' ',INITCAP(EIR.MIDDLE_NM),' ',INITCAP(EIR.LAST_NM)),' ',' ') AS EMP_USER_NM FROM ORGANISATION_EMPLOYEE_XREF OE JOIN EMPLOYEES_INFO_REF EIR ON EIR.EMP_ID=OE.EMP_ID JOIN EMPLOYEE_DEPT_XREF ED ON ED.EMP_ID= EIR.EMP_ID WHERE OE.ORG_ID=%(org_id)s AND DEPT_ID=%(dept_id)s AND DOCTOR_REGISTER_NO IS NOT NULL
+
+SELECT ROW_NUMBER () OVER (ORDER BY EMP_USER_NM) AS SNO, DOCTOR_ID, DOCTOR_REGISTER_NO, WORKING_DAY ,START_DT,END_DT FROM APPOINTMENT.DOCTOR_WORK_INFO_TRANS 
+WHERE ISACTIVE=TRUE AND DOCTOR_ID=%(doct_id)s AND ORG_ID=%(org_id)s
+
+
+INSERT INTO APPOINTMENT.PATIENT_APPOINTMENT_TRANS(APPOINTMENT_DT, ORG_ID, DEPT_ID, DOCTOR_ID, APPOINTMENT_TYPE) VALUES
+('2019-09-02 08:30', 1333, 220190316000002,'ivrs');
+
+
+
+
+
+
+
+
+
+deleting a service:[DELETE method]
+http://192.168.1.101:8761/eureka/apps/emr-optho-siri2/dru.test01:emr-optho-siri2:8042
+http://49.207.6.227:8888/dev/ipd-application-dev.properties
+
+downing a service:[PUT method]
+http://49.207.6.227:8761/eureka/apps/EMR-SERVICE-VEER/dru.test01:emr-service-veer:8058/status?value=DOWN
+http://192.168.1.101:8761/eureka/apps/patient-portal-service-s/dru.test01:patient-portal-service-s:8053/status?value=DOWN
+
+
+
+
+
+
+
+
+
+
+
+REF:
+---
+sql:
+===
+https://www.w3resource.com/PostgreSQL/postgresql-count-function.php
+https://www.mongodb.com/blog/post/mongodb-and-data-streaming-implementing-a-mongodb-kafka-consumer
+https://www.journaldev.com/18341/python-scikit-learn-tutorial
